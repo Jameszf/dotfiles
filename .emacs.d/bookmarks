@@ -1,0 +1,20 @@
+;;;; Emacs Bookmark Format Version 1;;;; -*- coding: utf-8-emacs; mode: lisp-data -*-
+;;; This format is meant to be slightly human-readable;
+;;; nevertheless, you probably don't want to edit it.
+;;; -*- End Of Bookmark File Format Version Stamp -*-
+(("personal.org"
+ (filename . "~/.emacs.d/org/agenda/personal.org")
+ (front-context-string . "#+title: Persona")
+ (rear-context-string)
+ (position . 1))
+("201_Lec_10"
+ (filename . "~/.emacs.d/org/roam/daily/2022-07-19.org")
+ (front-context-string . "* Math 201 Lectu")
+ (rear-context-string . "TLE: 2022-07-19\n")
+ (position . 88))
+("org-capture-last-stored"
+ (filename . "~/.emacs.d/org/agenda/gtd.org")
+ (front-context-string . "  + [ ] Learn en")
+ (rear-context-string . "org-roam notes.\n")
+ (position . 316))
+)
