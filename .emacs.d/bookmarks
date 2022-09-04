@@ -14,7 +14,7 @@
  (position . 88))
 ("org-capture-last-stored"
  (filename . "~/.emacs.d/org/agenda/gtd.org")
- (front-context-string . "  + [ ] Learn en")
- (rear-context-string . "org-roam notes.\n")
- (position . 316))
+ (front-context-string . "  + [ ] Order mo")
+ (rear-context-string . "mplex commands.\n")
+ (position . 408))
 )
