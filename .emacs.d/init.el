@@ -137,8 +137,10 @@
   :config
   (which-key-mode))
 
+(general-define-key "<escape>" 'keyboard-escape-quit)
+
 (general-create-definer my-leader-def
-  :keymaps '(normal insert visual emacs)
+  :keymaps '(normal visual emacs)
   :prefix "SPC"
   :non-normal-prefix "M-SPC"
   :global-prefix "C-SPC")
@@ -160,13 +162,6 @@
   "o k c" '(org-clock-goto :which-key "Current"))
 
 (my-leader-def
-   "a" '(:ignore t :which-key "Agenda")
-   "a o" '(org-agenda :which-key "Open Agenda")
-   "a a" '(org-agenda-file-to-front :which-key "Add file")
-   "a r" '(org-remove-file :which-key "Remove file")
-   "a c" '(org-cycle-agenda-files :which-key "Cycle through files"))
-
-(my-leader-def
  "r l" 'org-roam-buffer-toggle
  "r i" 'org-roam-node-insert
  "r f" 'org-roam-node-find
@@ -177,9 +172,6 @@
  "r d b" '(org-roam-dailies-goto-next-note :which-key "Next note")
  "r d f" '(org-roam-dailies-goto-previous-note :which-key "Previous note")
  "r d" '(:ignore t :which-key "Dailies"))
-
-(my-leader-def
-  "c" '(org-capture :which-key "Capture"))
 
 (my-leader-def
   "e" '(:ignore t :which-key "Emacs")
@@ -194,19 +186,14 @@
   "e e" '(eval-buffer :which-key "Eval Buffer"))
 
 (my-leader-def
-;; ivy
 "TAB" '(ivy-switch-buffer :which-key "Switch buffer")
-"b" '(counsel-bookmark :which-key "Bookmarks")
-"SPC" '(counsel-M-x :which-key "M-x")
-"s" '(swiper :which-key "Swiper"))
+"SPC" '(counsel-M-x :which-key "M-x"))
 
 (my-leader-def
-"f" '(:ignore t :which-key "Files")
-"f f" '(find-file :which-key "Find File")
-"f c" '(open-common-file :which-key "Common Files"))
-
-(my-leader-def
-"d" '(deft :which-key "Deft"))
+"d" '(:ignore t :which-key "Dired")
+"d f" '(find-file :which-key "Find File")
+"d c" '(open-common-file :which-key "Common Files")
+"d d" '(dired-do-rename :which-key "Dired"))
 
 (my-leader-def
   "h" '(:ignore t :which-key "Help")
@@ -222,11 +209,27 @@
   "i d" '(org-deadline :which-key "Deadline")
   "i s" '(org-schedule :which-key "Schedule"))
 
-(my-leader-def
-  "m" '(:ignore t :which-key "Magit")
-  "m o" '(magit :which-key "Open"))
+(general-create-definer apps-leader-def
+    :keymaps '(normal visual emacs)
+    :prefix "SPC a")
 
-(general-define-key "<escape>" 'keyboard-escape-quit)
+(apps-leader-def
+"d" '(deft :which-key "Deft"))
+
+(apps-leader-def 
+  "s" '(swiper :which-key "Swiper"))
+
+(apps-leader-def
+ "a" '(org-agenda :which-key "Org Agenda"))
+
+(apps-leader-def
+ "c" '(org-capture :which-key "Capture"))
+
+(apps-leader-def
+  "m" '(magit :which-key "Magit"))
+
+(apps-leader-def
+  "b" '(counsel-bookmark :which-key "Bookmarks"))
 
 (setq org-todo-keywords '((sequence "TODO" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
 (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray")))
@@ -239,25 +242,6 @@
 (setq org-adapt-indentation t)
 (setq org-deadline-warning-days 7)
 (setq org-tags-column -60)
-(setq org-capture-templates '(("a" "Agenda Items")
-                              ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
-                              ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
-                              ("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
-                               "* %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n**  %?")
-                              ("r" "Reflection templates")
-                              ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
-                              ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)
-                              ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                              ("b" "Bibliography/Bookmarks")
-                              ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")
-                              ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                              ("c" "Chinese")
-                              ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
-                              ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
-                              ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")
-                              ("w" "Work Sessions")
-                              ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
-                              ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
 (setq org-log-done 'time)
 (setq org-hide-block-startup t)
 (setq org-log-into-drawer t)
@@ -288,6 +272,26 @@
                                  ("" "marvosym")
                                  ("" "latexsym")
                                  ("" "amssymb")))
+
+(setq org-capture-templates '(("a" "Agenda Items")
+                              ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
+                              ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
+                              ("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
+                               "* [%<%Y-%m-%d %k:%M>]  %?\n%(gen-time-heading-id)\n")
+                              ("r" "Reflection templates")
+                              ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
+                              ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)
+                              ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
+                              ("b" "Bibliography/Bookmarks")
+                              ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")
+                              ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
+                              ("c" "Chinese")
+                              ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
+                              ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
+                              ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")
+                              ("w" "Work Sessions")
+                              ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
+                              ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()

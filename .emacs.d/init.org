@@ -21,10 +21,7 @@
  + Incorporate hydra into keybinds.
  + Dired.
  + Modify CP Problem capture template to allow selection of "TODO" or "SOLVED" keywords.
-* Projects
-  - ETS app.
-  - Blog website (look into Hugo).
-* Commands to investigate
+* Packages to investigate
   + evil-join
   + default-indent-new-line
   + mark-defun
@@ -185,7 +182,7 @@ Automatically (delete old versions) updates packages upon startup with auto-pack
 
     (message "Functions loaded in...")
 #+end_src
-* Global Keybinds
+* Keybinds
 ** General, Key-Chord, and Which-key
 General is a comprehensive keybinding management package (analoguous to use-package and package management). Key-chord adds support for simultaneous pressing of a pair of keys.
 #+begin_src emacs-lisp
@@ -206,11 +203,15 @@ General is a comprehensive keybinding management package (analoguous to use-pack
     :config
     (which-key-mode))
 #+end_src
-** The Keybinds
+** Base
+#+begin_src emacs-lisp
+  (general-define-key "<escape>" 'keyboard-escape-quit)
+#+end_src
+** SPC
 *** Leader Key
 #+begin_src emacs-lisp
     (general-create-definer my-leader-def
-      :keymaps '(normal insert visual emacs)
+      :keymaps '(normal visual emacs)
       :prefix "SPC"
       :non-normal-prefix "M-SPC"
       :global-prefix "C-SPC")
@@ -233,15 +234,6 @@ General is a comprehensive keybinding management package (analoguous to use-pack
     "o k g" '((lambda () (interactive) (icallwp 'org-clock-goto 4)) :which-key "Goto")
     "o k c" '(org-clock-goto :which-key "Current"))
 #+end_src
-**** Org-Agenda
-#+begin_src emacs-lisp
-  (my-leader-def
-     "a" '(:ignore t :which-key "Agenda")
-     "a o" '(org-agenda :which-key "Open Agenda")
-     "a a" '(org-agenda-file-to-front :which-key "Add file")
-     "a r" '(org-remove-file :which-key "Remove file")
-     "a c" '(org-cycle-agenda-files :which-key "Cycle through files"))
-#+end_src
 **** Org-Roam
 #+begin_src emacs-lisp
   (my-leader-def
@@ -255,11 +247,6 @@ General is a comprehensive keybinding management package (analoguous to use-pack
    "r d b" '(org-roam-dailies-goto-next-note :which-key "Next note")
    "r d f" '(org-roam-dailies-goto-previous-note :which-key "Previous note")
    "r d" '(:ignore t :which-key "Dailies"))
-#+end_src
-**** Org-Capture
-#+begin_src emacs-lisp
-  (my-leader-def
-    "c" '(org-capture :which-key "Capture"))
 #+end_src
 *** Emacs
 #+begin_src emacs-lisp
@@ -278,23 +265,16 @@ General is a comprehensive keybinding management package (analoguous to use-pack
 *** Ivy and Counsel
 #+begin_src emacs-lisp
   (my-leader-def
-  ;; ivy
   "TAB" '(ivy-switch-buffer :which-key "Switch buffer")
-  "b" '(counsel-bookmark :which-key "Bookmarks")
-  "SPC" '(counsel-M-x :which-key "M-x")
-  "s" '(swiper :which-key "Swiper"))
+  "SPC" '(counsel-M-x :which-key "M-x"))
 #+end_src
-*** Files
-#+begin_src emacs-lisp
-    (my-leader-def
-    "f" '(:ignore t :which-key "Files")
-    "f f" '(find-file :which-key "Find File")
-    "f c" '(open-common-file :which-key "Common Files"))
-#+end_src
-*** Deft
+*** Dired
 #+begin_src emacs-lisp
   (my-leader-def
-  "d" '(deft :which-key "Deft"))
+  "d" '(:ignore t :which-key "Dired")
+  "d f" '(find-file :which-key "Find File")
+  "d c" '(open-common-file :which-key "Common Files")
+  "d d" '(dired-do-rename :which-key "Dired"))
 #+end_src
 *** Help
 #+begin_src emacs-lisp
@@ -314,15 +294,42 @@ General is a comprehensive keybinding management package (analoguous to use-pack
     "i d" '(org-deadline :which-key "Deadline")
     "i s" '(org-schedule :which-key "Schedule"))
 #+end_src
-*** Magit
+*** Apps
+**** Leader Key
 #+begin_src emacs-lisp
-    (my-leader-def
-      "m" '(:ignore t :which-key "Magit")
-      "m o" '(magit :which-key "Open"))
+  (general-create-definer apps-leader-def
+      :keymaps '(normal visual emacs)
+      :prefix "SPC a")
 #+end_src
-*** Misc
+**** Deft
 #+begin_src emacs-lisp
-  (general-define-key "<escape>" 'keyboard-escape-quit)
+  (apps-leader-def
+  "d" '(deft :which-key "Deft"))
+#+end_src
+**** Swiper
+#+begin_src emacs-lisp
+  (apps-leader-def 
+    "s" '(swiper :which-key "Swiper"))
+#+end_src
+**** Org-Agenda
+#+begin_src emacs-lisp
+  (apps-leader-def
+   "a" '(org-agenda :which-key "Org Agenda"))
+#+end_src
+**** Org-Capture
+#+begin_src emacs-lisp
+  (apps-leader-def
+   "c" '(org-capture :which-key "Capture"))
+#+end_src
+**** Magit
+#+begin_src emacs-lisp
+  (apps-leader-def
+    "m" '(magit :which-key "Magit"))
+#+end_src
+**** Bookmarks
+#+begin_src emacs-lisp
+  (apps-leader-def
+    "b" '(counsel-bookmark :which-key "Bookmarks"))
 #+end_src
 * Org
 ** Config
@@ -338,25 +345,6 @@ General is a comprehensive keybinding management package (analoguous to use-pack
             (setq org-adapt-indentation t)
             (setq org-deadline-warning-days 7)
             (setq org-tags-column -60)
-            (setq org-capture-templates '(("a" "Agenda Items")
-                                          ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
-                                          ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
-                                          ("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
-                                           "* %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n**  %?")
-                                          ("r" "Reflection templates")
-                                          ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
-                                          ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)
-                                          ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                                          ("b" "Bibliography/Bookmarks")
-                                          ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")
-                                          ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                                          ("c" "Chinese")
-                                          ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
-                                          ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
-                                          ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")
-                                          ("w" "Work Sessions")
-                                          ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
-                                          ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
             (setq org-log-done 'time)
             (setq org-hide-block-startup t)
             (setq org-log-into-drawer t)
@@ -389,6 +377,28 @@ General is a comprehensive keybinding management package (analoguous to use-pack
                                    ("" "marvosym")
                                    ("" "latexsym")
                                    ("" "amssymb")))
+#+end_src
+*** Org-capture templates
+#+begin_src emacs-lisp
+  (setq org-capture-templates '(("a" "Agenda Items")
+                                ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
+                                ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
+                                ("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
+                                 "* [%<%Y-%m-%d %k:%M>]  %?\n%(gen-time-heading-id)\n")
+                                ("r" "Reflection templates")
+                                ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
+                                ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)
+                                ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
+                                ("b" "Bibliography/Bookmarks")
+                                ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")
+                                ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
+                                ("c" "Chinese")
+                                ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
+                                ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
+                                ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")
+                                ("w" "Work Sessions")
+                                ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
+                                ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
 #+end_src
 ** Babel
 Taken from System Crafters "Emacs from Scratch #7." It automatically tangles init.org whenever it is saved.
@@ -565,6 +575,7 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
     :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
 ** Helpful
+
 #+begin_src emacs-lisp
   (use-package helpful)
 #+end_src
