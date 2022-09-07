@@ -1,6 +1,6 @@
 #+TITLE:My Emacs Config
 #+PROPERTY: header-args :tangle ./init.el
-#+STARTUP: nohideblocks
+#+STARTUP: hideblocks
 * TODOS
  + magit + version control config file and org roam.
  + Enable global flycheck and add syntax checkers.
@@ -120,28 +120,28 @@ Automatically (delete old versions) updates packages upon startup with auto-pack
     (auto-package-update-maybe))
 #+end_src
 * Personal Code
+Code for my common-files command. This command allows easy opening of files (in `common-files`) I visit often. 
 #+begin_src emacs-lisp
-    (defvar common-files '() "List of common files for common-files command.")
+  (defvar common-files '() "List of common files for common-files command.")
 
-    (defun add-common-file (cfpath)
-      (let ((name (substring cfpath (+ (string-match "/[-_.A-Za-z]+$" cfpath) 1) (string-match "\.[-_A-Za-z]+$" cfpath))))
-        (add-to-list 'common-files `(,(format "[%s] %s" (upcase name) cfpath) . ,cfpath))))
+  (defun add-common-file (cfpath)
+    (let ((name (substring cfpath (+ (string-match "/[-_.A-Za-z]+$" cfpath) 1) (string-match "\.[-_A-Za-z]+$" cfpath))))
+      (add-to-list 'common-files `(,(format "[%s] %s" (upcase name) cfpath) . ,cfpath))))
 
-    (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
-                                 "~/.emacs.d/org/roam/reflections.org"
-                                 "~/.emacs.d/org/roam/bibliography.org"
-                                 "~/.emacs.d/org/agenda/gtd.org"
-                                 "~/.emacs.d/org/roam/mistakes.org"
-                                 "~/.emacs.d/init.el"
-                                 "~/.emacs.d/org/roam/bookmarks.org"
-                                 "~/.emacs.d/org/roam/problems.org"
-                                 "~/.emacs.d/org/roam/work.org")))
-      (mapcar 'add-common-file common-files-to-add))
+  (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
+                               "~/.emacs.d/org/roam/reflections.org"
+                               "~/.emacs.d/org/roam/bibliography.org"
+                               "~/.emacs.d/org/agenda/gtd.org"
+                               "~/.emacs.d/org/roam/mistakes.org"
+                               "~/.emacs.d/init.el"
+                               "~/.emacs.d/org/roam/bookmarks.org"
+                               "~/.emacs.d/org/roam/problems.org"
+                               "~/.emacs.d/org/roam/work.org")))
+    (mapcar 'add-common-file common-files-to-add))
+#+end_src
 
-    (defun open-emacs-config-file ()
-      (interactive)
-      (find-file (expand-file-name "~/.emacs.d/init.org")))
-
+Restart emacs commands.
+#+begin_src emacs-lisp
     (defun restart-emacs-debug-mode ()
       (interactive)
       (restart-emacs '("--debug-init")))
@@ -149,50 +149,63 @@ Automatically (delete old versions) updates packages upon startup with auto-pack
     (defun restart-emacs-no-init ()
       (interactive)
       (restart-emacs '("--no-init-file")))
+#+end_src
 
-    (defun create-scratch-buffer ()
-      ;; from https://www.emacswiki.org/emacs/RecreateScratchBuffer
-      (interactive)
-      (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
-      (lisp-interaction-mode))
+Functions
+#+begin_src emacs-lisp
+  (defun gen-time-heading-id ()
+    (format ":PROPERTIES:\n:ID: %s\n:END:" (format-time-string "%Y%m%d%k%M")))
 
-    (defun load-config-file ()
-      (interactive)
-      (load-file (expand-file-name "~/.emacs.d/init.el")))
+  (defun icallwp (func prefix)
+    "Interactive call func with some prefix."
+    (let ((current-prefix-arg prefix))
+      (call-interactively func)))
+#+end_src
 
-    (defun my-org-id-get-create ()
-      (format-time-string "%Y%m%d%k%M"))
+My custom commands.
+#+begin_src emacs-lisp
+  (defun open-emacs-config-file ()
+    (interactive)
+    (find-file (expand-file-name "~/.emacs.d/init.org")))
 
-    (defun open-common-file ()
-      (interactive)
-      (ivy-read "Goto: " common-files :require-match t :action (lambda (file) (find-file (cdr file)))))
+  (defun create-scratch-buffer ()
+    ;; from https://www.emacswiki.org/emacs/RecreateScratchBuffer
+    (interactive)
+    (switch-to-buffer-other-window (get-buffer-create "*scratch*"))
+    (lisp-interaction-mode))
 
-    (defun gen-time-heading-id ()
-      (format ":PROPERTIES:\n:ID: %s\n:END:" (my-org-id-get-create)))
+  (defun load-config-file ()
+    (interactive)
+    (load-file (expand-file-name "~/.emacs.d/init.el")))
 
-    (defun icallwp (func prefix)
-      "Interactive call func with some prefix."
-      (interactive)
-      (let ((current-prefix-arg prefix))
-        (call-interactively func)))
+  (defun open-common-file ()
+    (interactive)
+    (ivy-read "Goto: " common-files :require-match t :action (lambda (file) (find-file (cdr file)))))
 
-    (defun copy-buffer-file-name ()
-      (interactive)
-      (kill-new buffer-file-name))
 
-    (message "Functions loaded in...")
+  (defun copy-buffer-file-name ()
+    (interactive)
+    (kill-new buffer-file-name))
+
+  (message "Functions loaded in...")
 #+end_src
 * Keybinds
 ** General, Key-Chord, and Which-key
-General is a comprehensive keybinding management package (analoguous to use-package and package management). Key-chord adds support for simultaneous pressing of a pair of keys.
+General is a comprehensive keybinding management package (analoguous to use-package and package management). All of my keybindings are configured using this package with `general-define-key` or a custom leader key defintion.
 #+begin_src emacs-lisp
   (use-package general)
+#+end_src
 
+Key-Chord supports keybinding to quickly pressed key pairs. I only use this for "fd/df" evil escape sequence.
+#+begin_src emacs-lisp
   (use-package key-chord
     :diminish
     :config
     (key-chord-mode 1))
+#+end_src
 
+Which-key adds a help window that shows available keybinds for given prefixes.
+#+begin_src emacs-lisp
   (use-package which-key
     :diminish
     :custom
@@ -204,11 +217,14 @@ General is a comprehensive keybinding management package (analoguous to use-pack
     (which-key-mode))
 #+end_src
 ** Base
+Sets the escape key to behave similar to C-g in native emacs. This is for ergonomic reasons.
 #+begin_src emacs-lisp
   (general-define-key "<escape>" 'keyboard-escape-quit)
 #+end_src
 ** SPC
+All keybindings with a SPC prefix, this is inspired by Spacemacs system.
 *** Leader Key
+The leader key defines the primary prefix of my personal keybinds. Vim introduced leader keys were introduced to me.
 #+begin_src emacs-lisp
     (general-create-definer my-leader-def
       :keymaps '(normal visual emacs)
@@ -217,14 +233,19 @@ General is a comprehensive keybinding management package (analoguous to use-pack
       :global-prefix "C-SPC")
 #+end_src
 *** Org
+General Org-mode keybinds.
+#+begin_src emacs-lisp
+        (my-leader-def
+          "o" '(:ignore t :which-key "Org-mode")
+          "o l" '(org-add-note :which-key "Logbook entry")
+          "o n" '(:ignore t :which-key "Narrow")
+          "o n s" '(org-narrow-to-subtree :which-key "Subtree")
+          "o n w" '(widen :which-key "Widen"))
+#+end_src
+
+Useful Org-mode clocking commands.
 #+begin_src emacs-lisp
   (my-leader-def
-    "o" '(:ignore t :which-key "Org-mode")
-    "o l" '(org-add-note :which-key "Logbook entry")
-    "o a" '(:ignore t :which-key "Archive")
-    "o a e" '(org-archive-subtree-default :which-key "Entry")
-    "o a s" '(org-archive-subtree :which-key "Subtree")
-    "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select")
     "o k" '(:ignore t :which-key "Clock")
     "o k i" '(org-clock-in :which-key "In")
     "o k o" '(org-clock-out :which-key "Out")
@@ -233,6 +254,15 @@ General is a comprehensive keybinding management package (analoguous to use-pack
     "o k q" '(org-clock-cancel :which-key "Cancel")
     "o k g" '((lambda () (interactive) (icallwp 'org-clock-goto 4)) :which-key "Goto")
     "o k c" '(org-clock-goto :which-key "Current"))
+#+end_src
+
+Useful Org-mode archiving commands.
+#+begin_src emacs-lisp
+(my-leader-def 
+    "o a" '(:ignore t :which-key "Archive")
+    "o a e" '(org-archive-subtree-default :which-key "Entry")
+    "o a s" '(org-archive-subtree :which-key "Subtree")
+    "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select"))
 #+end_src
 **** Org-Roam
 #+begin_src emacs-lisp
@@ -249,6 +279,7 @@ General is a comprehensive keybinding management package (analoguous to use-pack
    "r d" '(:ignore t :which-key "Dailies"))
 #+end_src
 *** Emacs
+Generic commands for manipulating the Emacs editor system.
 #+begin_src emacs-lisp
       (my-leader-def
         "e" '(:ignore t :which-key "Emacs")
@@ -268,15 +299,15 @@ General is a comprehensive keybinding management package (analoguous to use-pack
   "TAB" '(ivy-switch-buffer :which-key "Switch buffer")
   "SPC" '(counsel-M-x :which-key "M-x"))
 #+end_src
-*** Dired
+*** Files
 #+begin_src emacs-lisp
   (my-leader-def
-  "d" '(:ignore t :which-key "Dired")
-  "d f" '(find-file :which-key "Find File")
-  "d c" '(open-common-file :which-key "Common Files")
-  "d d" '(dired-do-rename :which-key "Dired"))
+  "f" '(:ignore t :which-key "Files")
+  "f f" '(find-file :which-key "Find File")
+  "f c" '(open-common-file :which-key "Common Files"))
 #+end_src
 *** Help
+Helpful commands as well as find-library that I use for understanding packages/commands.
 #+begin_src emacs-lisp
     (my-leader-def
       "h" '(:ignore t :which-key "Help")
@@ -331,6 +362,69 @@ General is a comprehensive keybinding management package (analoguous to use-pack
   (apps-leader-def
     "b" '(counsel-bookmark :which-key "Bookmarks"))
 #+end_src
+**** Dired
+#+begin_src emacs-lisp
+  (apps-leader-def
+    "d" '(dired :which-key "Dired"))
+#+end_src
+** Modes
+*** Org-Agenda
+#+begin_src emacs-lisp
+  (general-define-key
+   :keymaps 'org-agenda-mode-map
+   "j" 'org-agenda-next-line
+   "k" 'org-agenda-previous-line)
+#+end_src
+*** Evil
+#+begin_src emacs-lisp
+  (general-define-key
+   :states 'insert
+   (general-chord "fd") 'evil-normal-state
+   (general-chord "df") 'evil-normal-state)
+
+  (general-define-key
+   :states 'normal
+   "j" 'evil-next-visual-line
+   "k" 'evil-previous-visual-line)
+#+end_src
+*** Info
+#+begin_src emacs-lisp
+  (general-define-key
+   :states 'normal
+   :keymaps 'Info-mode-map
+   "j" 'Info-scroll-up ;; <BACKSPACE>
+   "k" 'Info-scroll-down ;; <SPC>
+   "h" 'Info-backward-node ;; [
+   "l" 'Info-forward-node ;; ]
+   "e" 'Info-history-back ;; l
+   "r" 'Info-history-forward ;;  r
+   "m" 'Info-menu ;; m
+   "n" 'Info-goto-node ;; g
+   "t" 'Info-top-node ;; t
+   "f" 'Info-follow-reference ;; f
+   )
+#+end_src
+*** Elfeed
+#+begin_src emacs-lisp
+  (general-define-key
+   :states 'normal
+   :keymaps 'elfeed-search-mode-map
+   "r" 'elfeed-search-untag-all-unread
+   "u" 'elfeed-search-tag-all-unread)
+#+end_src
+*** Ivy
+#+begin_src emacs-lisp
+  (general-define-key
+   :keymaps 'ivy-switch-buffer-map
+   "C-k" 'ivy-previous-line
+   "C-l" 'ivy-done
+   "C-d" 'ivy-switch-buffer-kill)
+
+  (general-define-key
+    :keymaps 'ivy-minibuffer-map
+    "C-j" 'ivy-next-line
+    "C-k" 'ivy-previous-line)
+#+end_src
 * Org
 ** Config
 #+begin_src emacs-lisp
@@ -351,10 +445,6 @@ General is a comprehensive keybinding management package (analoguous to use-pack
             (setq org-clock-persist 'history)
             (org-clock-persistence-insinuate)
 
-            (general-define-key
-             :keymaps 'org-agenda-mode-map
-             "j" 'org-agenda-next-line
-             "k" 'org-agenda-previous-line)
 #+end_src
 *** Latex Preview
 #+begin_src emacs-lisp
@@ -445,9 +535,6 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
                                           ("m" "moment" entry "* %<%I:%M %p> %?"
                                            :target (file+head "%<%Y-%m-%d>.org" "#+TITLE: %<%Y-%m-%d>\n")
                                            :unnarrowed t)))
-    :general
-    (:keymaps 'org-mode-map
-              "C-M-i" 'completion-at-point)
     :config
     (require 'org-roam-dailies)
     (org-roam-db-autosync-mode))
@@ -504,30 +591,6 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
   (use-package evil
     :demand t
     :diminish
-    :general
-    (:states 'insert
-             (general-chord "fd") 'evil-normal-state
-             (general-chord "df") 'evil-normal-state)
-    (:states 'normal
-             "j" 'evil-next-visual-line
-             "k" 'evil-previous-visual-line)
-    (:states 'normal
-     :keymaps 'Info-mode-map
-     "j" 'Info-scroll-up ;; <BACKSPACE>
-     "k" 'Info-scroll-down ;; <SPC>
-     "h" 'Info-backward-node ;; [
-     "l" 'Info-forward-node ;; ]
-     "e" 'Info-history-back ;; l
-     "r" 'Info-history-forward ;;  r
-     "m" 'Info-menu ;; m
-     "n" 'Info-goto-node ;; g
-     "t" 'Info-top-node ;; t
-     "f" 'Info-follow-reference ;; f
-     )
-    (:states 'normal
-     :keymaps 'elfeed-search-mode-map
-     "r" 'elfeed-search-untag-all-unread
-     "u" 'elfeed-search-tag-all-unread)
     :custom
     (evil-want-C-i-jump nil)
     (evil-respect-visual-line-mode t)
@@ -550,10 +613,6 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
 #+begin_src emacs-lisp
   (use-package ivy
     :diminish
-    :bind (:map ivy-switch-buffer-map
-           ("C-k" . ivy-previous-line)
-           ("C-l" . ivy-done)
-           ("C-d" . ivy-switch-buffer-kill))
     :config
     (ivy-mode 1))
 
@@ -561,10 +620,7 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
     :init
     (ivy-rich-mode 1))
 
-  (use-package counsel
-    :bind (:map ivy-minibuffer-map
-                ("C-j" . ivy-next-line)
-                ("C-k" . ivy-previous-line)))
+  (use-package counsel)
 
   (message "Ivy and Counsel loaded in...")
 #+end_src

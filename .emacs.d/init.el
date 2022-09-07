@@ -76,10 +76,6 @@
                              "~/.emacs.d/org/roam/work.org")))
   (mapcar 'add-common-file common-files-to-add))
 
-(defun open-emacs-config-file ()
-  (interactive)
-  (find-file (expand-file-name "~/.emacs.d/init.org")))
-
 (defun restart-emacs-debug-mode ()
   (interactive)
   (restart-emacs '("--debug-init")))
@@ -87,6 +83,18 @@
 (defun restart-emacs-no-init ()
   (interactive)
   (restart-emacs '("--no-init-file")))
+
+(defun gen-time-heading-id ()
+  (format ":PROPERTIES:\n:ID: %s\n:END:" (format-time-string "%Y%m%d%k%M")))
+
+(defun icallwp (func prefix)
+  "Interactive call func with some prefix."
+  (let ((current-prefix-arg prefix))
+    (call-interactively func)))
+
+(defun open-emacs-config-file ()
+  (interactive)
+  (find-file (expand-file-name "~/.emacs.d/init.org")))
 
 (defun create-scratch-buffer ()
   ;; from https://www.emacswiki.org/emacs/RecreateScratchBuffer
@@ -98,21 +106,10 @@
   (interactive)
   (load-file (expand-file-name "~/.emacs.d/init.el")))
 
-(defun my-org-id-get-create ()
-  (format-time-string "%Y%m%d%k%M"))
-
 (defun open-common-file ()
   (interactive)
   (ivy-read "Goto: " common-files :require-match t :action (lambda (file) (find-file (cdr file)))))
 
-(defun gen-time-heading-id ()
-  (format ":PROPERTIES:\n:ID: %s\n:END:" (my-org-id-get-create)))
-
-(defun icallwp (func prefix)
-  "Interactive call func with some prefix."
-  (interactive)
-  (let ((current-prefix-arg prefix))
-    (call-interactively func)))
 
 (defun copy-buffer-file-name ()
   (interactive)
@@ -148,10 +145,11 @@
 (my-leader-def
   "o" '(:ignore t :which-key "Org-mode")
   "o l" '(org-add-note :which-key "Logbook entry")
-  "o a" '(:ignore t :which-key "Archive")
-  "o a e" '(org-archive-subtree-default :which-key "Entry")
-  "o a s" '(org-archive-subtree :which-key "Subtree")
-  "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select")
+  "o n" '(:ignore t :which-key "Narrow")
+  "o n s" '(org-narrow-to-subtree :which-key "Subtree")
+  "o n w" '(widen :which-key "Widen"))
+
+(my-leader-def
   "o k" '(:ignore t :which-key "Clock")
   "o k i" '(org-clock-in :which-key "In")
   "o k o" '(org-clock-out :which-key "Out")
@@ -160,6 +158,12 @@
   "o k q" '(org-clock-cancel :which-key "Cancel")
   "o k g" '((lambda () (interactive) (icallwp 'org-clock-goto 4)) :which-key "Goto")
   "o k c" '(org-clock-goto :which-key "Current"))
+
+(my-leader-def 
+    "o a" '(:ignore t :which-key "Archive")
+    "o a e" '(org-archive-subtree-default :which-key "Entry")
+    "o a s" '(org-archive-subtree :which-key "Subtree")
+    "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select"))
 
 (my-leader-def
  "r l" 'org-roam-buffer-toggle
@@ -190,10 +194,9 @@
 "SPC" '(counsel-M-x :which-key "M-x"))
 
 (my-leader-def
-"d" '(:ignore t :which-key "Dired")
-"d f" '(find-file :which-key "Find File")
-"d c" '(open-common-file :which-key "Common Files")
-"d d" '(dired-do-rename :which-key "Dired"))
+"f" '(:ignore t :which-key "Files")
+"f f" '(find-file :which-key "Find File")
+"f c" '(open-common-file :which-key "Common Files"))
 
 (my-leader-def
   "h" '(:ignore t :which-key "Help")
@@ -231,6 +234,56 @@
 (apps-leader-def
   "b" '(counsel-bookmark :which-key "Bookmarks"))
 
+(apps-leader-def
+  "d" '(dired :which-key "Dired"))
+
+(general-define-key
+ :keymaps 'org-agenda-mode-map
+ "j" 'org-agenda-next-line
+ "k" 'org-agenda-previous-line)
+
+(general-define-key
+ :states 'insert
+ (general-chord "fd") 'evil-normal-state
+ (general-chord "df") 'evil-normal-state)
+
+(general-define-key
+ :states 'normal
+ "j" 'evil-next-visual-line
+ "k" 'evil-previous-visual-line)
+
+(general-define-key
+ :states 'normal
+ :keymaps 'Info-mode-map
+ "j" 'Info-scroll-up ;; <BACKSPACE>
+ "k" 'Info-scroll-down ;; <SPC>
+ "h" 'Info-backward-node ;; [
+ "l" 'Info-forward-node ;; ]
+ "e" 'Info-history-back ;; l
+ "r" 'Info-history-forward ;;  r
+ "m" 'Info-menu ;; m
+ "n" 'Info-goto-node ;; g
+ "t" 'Info-top-node ;; t
+ "f" 'Info-follow-reference ;; f
+ )
+
+(general-define-key
+ :states 'normal
+ :keymaps 'elfeed-search-mode-map
+ "r" 'elfeed-search-untag-all-unread
+ "u" 'elfeed-search-tag-all-unread)
+
+(general-define-key
+ :keymaps 'ivy-switch-buffer-map
+ "C-k" 'ivy-previous-line
+ "C-l" 'ivy-done
+ "C-d" 'ivy-switch-buffer-kill)
+
+(general-define-key
+  :keymaps 'ivy-minibuffer-map
+  "C-j" 'ivy-next-line
+  "C-k" 'ivy-previous-line)
+
 (setq org-todo-keywords '((sequence "TODO" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
 (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray")))
 (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
@@ -247,11 +300,6 @@
 (setq org-log-into-drawer t)
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
-
-(general-define-key
- :keymaps 'org-agenda-mode-map
- "j" 'org-agenda-next-line
- "k" 'org-agenda-previous-line)
 
 (setq org-format-latex-options '(:foreground default
                                              :background default
@@ -329,9 +377,6 @@
                                         ("m" "moment" entry "* %<%I:%M %p> %?"
                                          :target (file+head "%<%Y-%m-%d>.org" "#+TITLE: %<%Y-%m-%d>\n")
                                          :unnarrowed t)))
-  :general
-  (:keymaps 'org-mode-map
-            "C-M-i" 'completion-at-point)
   :config
   (require 'org-roam-dailies)
   (org-roam-db-autosync-mode))
@@ -380,30 +425,6 @@
 (use-package evil
   :demand t
   :diminish
-  :general
-  (:states 'insert
-           (general-chord "fd") 'evil-normal-state
-           (general-chord "df") 'evil-normal-state)
-  (:states 'normal
-           "j" 'evil-next-visual-line
-           "k" 'evil-previous-visual-line)
-  (:states 'normal
-   :keymaps 'Info-mode-map
-   "j" 'Info-scroll-up ;; <BACKSPACE>
-   "k" 'Info-scroll-down ;; <SPC>
-   "h" 'Info-backward-node ;; [
-   "l" 'Info-forward-node ;; ]
-   "e" 'Info-history-back ;; l
-   "r" 'Info-history-forward ;;  r
-   "m" 'Info-menu ;; m
-   "n" 'Info-goto-node ;; g
-   "t" 'Info-top-node ;; t
-   "f" 'Info-follow-reference ;; f
-   )
-  (:states 'normal
-   :keymaps 'elfeed-search-mode-map
-   "r" 'elfeed-search-untag-all-unread
-   "u" 'elfeed-search-tag-all-unread)
   :custom
   (evil-want-C-i-jump nil)
   (evil-respect-visual-line-mode t)
@@ -422,10 +443,6 @@
 
 (use-package ivy
   :diminish
-  :bind (:map ivy-switch-buffer-map
-         ("C-k" . ivy-previous-line)
-         ("C-l" . ivy-done)
-         ("C-d" . ivy-switch-buffer-kill))
   :config
   (ivy-mode 1))
 
@@ -433,10 +450,7 @@
   :init
   (ivy-rich-mode 1))
 
-(use-package counsel
-  :bind (:map ivy-minibuffer-map
-              ("C-j" . ivy-next-line)
-              ("C-k" . ivy-previous-line)))
+(use-package counsel)
 
 (message "Ivy and Counsel loaded in...")
 
