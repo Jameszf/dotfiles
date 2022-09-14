@@ -41,6 +41,14 @@
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
 #+end_src
+** Hooks
+#+begin_src emacs-lisp
+  (add-hook 'python-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode t)
+              (setq tab-width 4)
+              (setq python-indent-offset 4)))
+#+end_src
 ** UI
 #+begin_src emacs-lisp
   ;; Disable mouse-centric menus.
@@ -153,13 +161,19 @@ Restart emacs commands.
 
 Functions
 #+begin_src emacs-lisp
-  (defun gen-time-heading-id ()
-    (format ":PROPERTIES:\n:ID: %s\n:END:" (format-time-string "%Y%m%d%k%M")))
+    (defun gen-time-heading-id ()
+      (format ":PROPERTIES:\n:ID: %s\n:END:" (format-time-string "%Y%m%d%k%M")))
 
-  (defun icallwp (func prefix)
-    "Interactive call func with some prefix."
-    (let ((current-prefix-arg prefix))
-      (call-interactively func)))
+    (defun icallwp (func prefix)
+      "Interactive call func with some prefix."
+      (let ((current-prefix-arg prefix))
+        (call-interactively 'func)))
+
+    (defun my-org-schedule ()
+      (format "SCHEDULED: <%s>" (org-read-date)))
+
+    (defun add-list-to-var (dest-var some-list)
+      (mapcar '(lambda (x) (add-to-list dest-var x)) some-list))
 #+end_src
 
 My custom commands.
@@ -186,6 +200,12 @@ My custom commands.
   (defun copy-buffer-file-name ()
     (interactive)
     (kill-new buffer-file-name))
+
+
+  (defun ins-checkbox-item ()
+    (interactive)
+    (insert "- [ ]  "))
+
 
   (message "Functions loaded in...")
 #+end_src
@@ -319,18 +339,25 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 *** Insert
 #+begin_src emacs-lisp
-  (my-leader-def
-    "i" '(:ignore t :which-key "Insert")
-    "i t" '(org-table-create-or-convert-from-region :which-key "Org table")
-    "i d" '(org-deadline :which-key "Deadline")
-    "i s" '(org-schedule :which-key "Schedule"))
+    (my-leader-def
+      "i" '(:ignore t :which-key "Insert")
+      "i t" '(org-table-create-or-convert-from-region :which-key "Org table")
+      "i d" '(org-deadline :which-key "Deadline")
+      "i s" '(org-schedule :which-key "Schedule")
+      "i c" '(ins-checkbox-item :which-key "Checkbox"))
 #+end_src
 *** Apps
 **** Leader Key
 #+begin_src emacs-lisp
   (general-create-definer apps-leader-def
       :keymaps '(normal visual emacs)
-      :prefix "SPC a")
+      :prefix "SPC a"
+      :global-prefix "C-SPC a")
+#+end_src
+
+#+begin_src emacs-lisp
+  (my-leader-def
+    "a" '(:ignore t :which-key "Apps"))
 #+end_src
 **** Deft
 #+begin_src emacs-lisp
@@ -428,22 +455,22 @@ Helpful commands as well as find-library that I use for understanding packages/c
 * Org
 ** Config
 #+begin_src emacs-lisp
-            (setq org-todo-keywords '((sequence "TODO" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
-            (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray")))
-            (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
-            (setq org-startup-folded t)
-            (setq org-return-follows-link t)
-            (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
-            (setq org-hide-emphasis-markers t)
-            (setq org-hidden-keywords '(title))
-            (setq org-adapt-indentation t)
-            (setq org-deadline-warning-days 7)
-            (setq org-tags-column -60)
-            (setq org-log-done 'time)
-            (setq org-hide-block-startup t)
-            (setq org-log-into-drawer t)
-            (setq org-clock-persist 'history)
-            (org-clock-persistence-insinuate)
+  (setq org-todo-keywords '((sequence "TODO" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
+  (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray")))
+  (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
+  (setq org-startup-folded t)
+  (setq org-return-follows-link t)
+  (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
+  (setq org-hide-emphasis-markers t)
+  (setq org-hidden-keywords '(title))
+  (setq org-adapt-indentation t)
+  (setq org-deadline-warning-days 7)
+  (setq org-tags-column -60)
+  (setq org-log-done 'time)
+  (setq org-hide-block-startup t)
+  (setq org-log-into-drawer t)
+  (setq org-clock-persist 'history)
+  (org-clock-persistence-insinuate)
 
 #+end_src
 *** Latex Preview
@@ -469,26 +496,54 @@ Helpful commands as well as find-library that I use for understanding packages/c
                                    ("" "amssymb")))
 #+end_src
 *** Org-capture templates
+Base
+#+begin_src emacs-lisp 
+  (defvar my-oc-templates '())
+  (add-list-to-var 'my-oc-templates '(("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
+                                       "* [%<%Y-%m-%d %k:%M>]  %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
+                                      ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
+                                      ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)))
+#+end_src
+
+Agenda 
 #+begin_src emacs-lisp
-  (setq org-capture-templates '(("a" "Agenda Items")
-                                ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
-                                ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
-                                ("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
-                                 "* [%<%Y-%m-%d %k:%M>]  %?\n%(gen-time-heading-id)\n")
-                                ("r" "Reflection templates")
-                                ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
-                                ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)
-                                ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                                ("b" "Bibliography/Bookmarks")
-                                ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")
-                                ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                                ("c" "Chinese")
-                                ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
-                                ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
-                                ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")
-                                ("w" "Work Sessions")
-                                ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
-                                ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
+  (add-list-to-var 'my-oc-templates '(("a" "Agenda Items")
+                                      ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
+                                      ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
+                                      ("aa" "Appointment" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Appointments") "** TODO %^{APPOINTMENT}\n%(my-org-schedule)\n%?")
+                                      ("al" "To Learn" item (file+headline "~/.emacs.d/org/agenda/gtd.org" "Things to Learn") "+ %^{CONCEPT} :: %^{DESCRIPTION}." :immediate-finish t)))
+#+end_src
+
+Reflection
+#+begin_src emacs-lisp
+  (add-list-to-var 'my-oc-templates '(("r" "Reflection templates")
+                                     ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
+                                     ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)))
+#+end_src
+
+Chinese
+#+begin_src emacs-lisp 
+  (add-list-to-var 'my-oc-templates '(("c" "Chinese")
+                                     ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
+                                     ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
+                                     ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")))
+#+end_src
+
+Work Sessions
+#+begin_src emacs-lisp
+  (add-list-to-var 'my-oc-templates '(("w" "Work Sessions")
+                                     ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
+                                     ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
+#+end_src
+
+Bibiliography
+#+begin_src emacs-lisp 
+  (add-list-to-var 'my-oc-templates '(("b" "Bibliography/Bookmarks")
+                                     ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")))
+#+end_src
+
+#+begin_src emacs-lisp
+  (setq org-capture-templates my-oc-templates)
 #+end_src
 ** Babel
 Taken from System Crafters "Emacs from Scratch #7." It automatically tangles init.org whenever it is saved.
@@ -609,6 +664,8 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
 
   (message "Evil loaded in...")
 #+end_src
+** Evil Easymotion
+evil-easymotion is not on ELPA or MELPA.
 * Ivy and Counsel
 #+begin_src emacs-lisp
   (use-package ivy

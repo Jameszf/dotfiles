@@ -3,6 +3,12 @@
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
 
+(add-hook 'python-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode t)
+            (setq tab-width 4)
+            (setq python-indent-offset 4)))
+
 ;; Disable mouse-centric menus.
 (setq initial-scratch-message "")
 (setq inhibit-startup-message t)
@@ -90,7 +96,13 @@
 (defun icallwp (func prefix)
   "Interactive call func with some prefix."
   (let ((current-prefix-arg prefix))
-    (call-interactively func)))
+    (call-interactively 'func)))
+
+(defun my-org-schedule ()
+  (format "SCHEDULED: <%s>" (org-read-date)))
+
+(defun add-list-to-var (dest-var some-list)
+  (mapcar '(lambda (x) (add-to-list dest-var x)) some-list))
 
 (defun open-emacs-config-file ()
   (interactive)
@@ -114,6 +126,12 @@
 (defun copy-buffer-file-name ()
   (interactive)
   (kill-new buffer-file-name))
+
+
+(defun ins-checkbox-item ()
+  (interactive)
+  (insert "- [ ]  "))
+
 
 (message "Functions loaded in...")
 
@@ -210,11 +228,16 @@
   "i" '(:ignore t :which-key "Insert")
   "i t" '(org-table-create-or-convert-from-region :which-key "Org table")
   "i d" '(org-deadline :which-key "Deadline")
-  "i s" '(org-schedule :which-key "Schedule"))
+  "i s" '(org-schedule :which-key "Schedule")
+  "i c" '(ins-checkbox-item :which-key "Checkbox"))
 
 (general-create-definer apps-leader-def
     :keymaps '(normal visual emacs)
-    :prefix "SPC a")
+    :prefix "SPC a"
+    :global-prefix "C-SPC a")
+
+(my-leader-def
+  "a" '(:ignore t :which-key "Apps"))
 
 (apps-leader-def
 "d" '(deft :which-key "Deft"))
@@ -321,25 +344,35 @@
                                  ("" "latexsym")
                                  ("" "amssymb")))
 
-(setq org-capture-templates '(("a" "Agenda Items")
-                              ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
-                              ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
-                              ("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
-                               "* [%<%Y-%m-%d %k:%M>]  %?\n%(gen-time-heading-id)\n")
-                              ("r" "Reflection templates")
-                              ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
-                              ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)
-                              ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                              ("b" "Bibliography/Bookmarks")
-                              ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")
-                              ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                              ("c" "Chinese")
-                              ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
-                              ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
-                              ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")
-                              ("w" "Work Sessions")
-                              ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
-                              ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
+(defvar my-oc-templates '())
+(add-list-to-var 'my-oc-templates '(("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
+                                     "* [%<%Y-%m-%d %k:%M>]  %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
+                                    ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
+                                    ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)))
+
+(add-list-to-var 'my-oc-templates '(("a" "Agenda Items")
+                                    ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
+                                    ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
+                                    ("aa" "Appointment" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Appointments") "** TODO %^{APPOINTMENT}\n%(my-org-schedule)\n%?")
+                                    ("al" "To Learn" item (file+headline "~/.emacs.d/org/agenda/gtd.org" "Things to Learn") "+ %^{CONCEPT} :: %^{DESCRIPTION}." :immediate-finish t)))
+
+(add-list-to-var 'my-oc-templates '(("r" "Reflection templates")
+                                   ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
+                                   ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)))
+
+(add-list-to-var 'my-oc-templates '(("c" "Chinese")
+                                   ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
+                                   ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
+                                   ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")))
+
+(add-list-to-var 'my-oc-templates '(("w" "Work Sessions")
+                                   ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
+                                   ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
+
+(add-list-to-var 'my-oc-templates '(("b" "Bibliography/Bookmarks")
+                                   ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")))
+
+(setq org-capture-templates my-oc-templates)
 
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
