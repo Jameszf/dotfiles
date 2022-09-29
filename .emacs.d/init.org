@@ -7,8 +7,7 @@
  + Book notes and Mistakes archive.
  + Org-ref/org-cite/some way to cite material.
  + lsp-mode + shell emulator.
- + More packages: [[https://github.com/doomemacs/doomemacs/tree/develop/modules/editor/evil#plugins][evil-plugins]], [[https://www.emacswiki.org/emacs/ERC][Emacs IRC]], Avy/evil-easymotion, company, [[https://www.reddit.com/r/emacs/comments/w4gxoa/what_are_some_musthave_packages_for_emacs/][more]], pulsar, hydra/transient/hercules, consult-jump-project, embark, projectile, treemacs, deft/deft-mode, evil-multiedit, moldable-emacs.
- + Investigate org-tags and think more about org-roam structure and use.
+ + More packages:  + Investigate org-tags and think more about org-roam structure and use.
  + Enable and configure company
  + Make programming helper commands:
    + Create tmp file.
@@ -19,13 +18,27 @@
  + Elfeed config.
  + Create minor mode for personal Info keybinds.
  + Incorporate hydra into keybinds.
- + Dired.
  + Modify CP Problem capture template to allow selection of "TODO" or "SOLVED" keywords.
 * Packages to investigate
   + evil-join
   + default-indent-new-line
   + mark-defun
   + evil-lookup
+  + [[https://github.com/doomemacs/doomemacs/tree/develop/modules/editor/evil#plugins][evil-plugins]]
+  + [[https://www.emacswiki.org/emacs/ERC][Emacs IRC]]
+  + Avy/evil-easymotion
+  + company
+  + [[https://www.reddit.com/r/emacs/comments/w4gxoa/what_are_some_musthave_packages_for_emacs/][more]]
+  + pulsar
+  + hydra/transient/hercules
+  + consult-jump-project
+  + embark
+  + projectile
+  + treemacs
+  + deft/deft-mode
+  + evil-multiedit
+  + moldable-emacs.
+
 * Issues
  + Figure out function name scope.
  + Evil org mode header movement.
@@ -176,7 +189,7 @@ Functions
       (mapcar '(lambda (x) (add-to-list dest-var x)) some-list))
 #+end_src
 
-My custom commands.
+Custom commands.
 #+begin_src emacs-lisp
   (defun open-emacs-config-file ()
     (interactive)
@@ -464,7 +477,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
   (setq org-hide-emphasis-markers t)
   (setq org-hidden-keywords '(title))
   (setq org-adapt-indentation t)
-  (setq org-deadline-warning-days 7)
+  (setq org-deadline-warning-days 2)
   (setq org-tags-column -60)
   (setq org-log-done 'time)
   (setq org-hide-block-startup t)
@@ -498,11 +511,12 @@ Helpful commands as well as find-library that I use for understanding packages/c
 *** Org-capture templates
 Base
 #+begin_src emacs-lisp 
-  (defvar my-oc-templates '())
-  (add-list-to-var 'my-oc-templates '(("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
-                                       "* [%<%Y-%m-%d %k:%M>]  %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
-                                      ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                                      ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)))
+    (defvar my-oc-templates '())
+    (add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
+                                         "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
+                                        ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
+                                        ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
+                                        ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n** TODO  %?\n** Reflection")))
 #+end_src
 
 Agenda 
@@ -527,13 +541,6 @@ Chinese
                                      ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
                                      ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
                                      ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")))
-#+end_src
-
-Work Sessions
-#+begin_src emacs-lisp
-  (add-list-to-var 'my-oc-templates '(("w" "Work Sessions")
-                                     ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
-                                     ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
 #+end_src
 
 Bibiliography
@@ -581,9 +588,19 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
     (org-roam-directory (expand-file-name "~/.emacs.d/org/roam"))
     (org-roam-completion-everywhere t)
     (org-roam-v2-ack t)
-    (org-roam-capture-templates '(("d" "default" plain "%?"
+    (org-roam-capture-templates '(("b" "blank" plain "%?"
                                    :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+                                   :unnarrowed t)
+                                  ("c" "Concept" plain "* Questions\n* Summary\n  %?\n* Relevance\n"
+                                   :target (file+head "%<%Y%m%d%H%M%S>-concept_${slug}.org" "#+filetags: :concept:\n#+TITLE: ${title}")
+                                   :unnarrowed t)
+                                  ("h" "Hoard" plain "* Concepts\n* Hoard\n %?"
+                                   :target (file+head "%<%Y%m%d%H%M%S>-hoard_${slug}.org" "#+filetags: :hoard:\n#+TITLE: ${title}")
+                                   :unnarrowed t)
+                                  ("t" "Thought" plain "*  %?"
+                                   :target (file+head "%<%Y%m%d%H%M%S>-thought_${slug}.org" "#+filetags: :thought\n#+TITLE: ${title}")
                                    :unnarrowed t)))
+    (org-roam-node-display-template (concat (propertize "${tags:10}" 'face 'org-tag) " ${title:*}"))
     (org-roam-dailies-capture-templates '(("d" "default" entry "* %?"
                                            :target (file+head "%<%Y-%m-%d>.org" "#+TITLE: %<%Y-%m-%d>\n")
                                            :unnarrowed t)

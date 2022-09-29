@@ -316,7 +316,7 @@
 (setq org-hide-emphasis-markers t)
 (setq org-hidden-keywords '(title))
 (setq org-adapt-indentation t)
-(setq org-deadline-warning-days 7)
+(setq org-deadline-warning-days 2)
 (setq org-tags-column -60)
 (setq org-log-done 'time)
 (setq org-hide-block-startup t)
@@ -345,10 +345,11 @@
                                  ("" "amssymb")))
 
 (defvar my-oc-templates '())
-(add-list-to-var 'my-oc-templates '(("i" "Inbox Note" entry (file "~/.emacs.d/org/roam/inbox.org")
-                                     "* [%<%Y-%m-%d %k:%M>]  %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
+(add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
+                                     "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
                                     ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                                    ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)))
+                                    ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
+                                    ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n** TODO  %?\n** Reflection")))
 
 (add-list-to-var 'my-oc-templates '(("a" "Agenda Items")
                                     ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
@@ -364,10 +365,6 @@
                                    ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
                                    ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
                                    ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")))
-
-(add-list-to-var 'my-oc-templates '(("w" "Work Sessions")
-                                   ("wp" "Plan" entry (file+headline "~/.emacs.d/org/roam/work.org" "Plans") "*  %?\n%(gen-time-heading-id)\n")
-                                   ("ws" "Session" entry (file+headline "~/.emacs.d/org/roam/work.org" "Sessions") "** %<%Y-%m-%d %k:%M>\n%(gen-time-heading-id)\n*** Objectives\n**** TODO  %?\n*** Reflection\n")))
 
 (add-list-to-var 'my-oc-templates '(("b" "Bibliography/Bookmarks")
                                    ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")))
@@ -401,9 +398,19 @@
   (org-roam-directory (expand-file-name "~/.emacs.d/org/roam"))
   (org-roam-completion-everywhere t)
   (org-roam-v2-ack t)
-  (org-roam-capture-templates '(("d" "default" plain "%?"
+  (org-roam-capture-templates '(("b" "blank" plain "%?"
                                  :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+                                 :unnarrowed t)
+                                ("c" "Concept" plain "* Questions\n* Summary\n  %?\n* Relevance\n"
+                                 :target (file+head "%<%Y%m%d%H%M%S>-concept_${slug}.org" "#+filetags: :concept:\n#+TITLE: ${title}")
+                                 :unnarrowed t)
+                                ("h" "Hoard" plain "* Concepts\n* Hoard\n %?"
+                                 :target (file+head "%<%Y%m%d%H%M%S>-hoard_${slug}.org" "#+filetags: :hoard:\n#+TITLE: ${title}")
+                                 :unnarrowed t)
+                                ("t" "Thought" plain "*  %?"
+                                 :target (file+head "%<%Y%m%d%H%M%S>-thought_${slug}.org" "#+filetags: :thought\n#+TITLE: ${title}")
                                  :unnarrowed t)))
+  (org-roam-node-display-template (concat (propertize "${tags:10}" 'face 'org-tag) " ${title:*}"))
   (org-roam-dailies-capture-templates '(("d" "default" entry "* %?"
                                          :target (file+head "%<%Y-%m-%d>.org" "#+TITLE: %<%Y-%m-%d>\n")
                                          :unnarrowed t)
