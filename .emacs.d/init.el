@@ -229,7 +229,8 @@
   "i t" '(org-table-create-or-convert-from-region :which-key "Org table")
   "i d" '(org-deadline :which-key "Deadline")
   "i s" '(org-schedule :which-key "Schedule")
-  "i c" '(ins-checkbox-item :which-key "Checkbox"))
+  "i c" '(ins-checkbox-item :which-key "Checkbox")
+  "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link"))
 
 (general-create-definer apps-leader-def
     :keymaps '(normal visual emacs)
@@ -259,6 +260,9 @@
 
 (apps-leader-def
   "d" '(dired :which-key "Dired"))
+
+(apps-leader-def
+  "e" '(elfeed :which-key "Elfeed"))
 
 (general-define-key
  :keymaps 'org-agenda-mode-map
@@ -307,10 +311,14 @@
   "C-j" 'ivy-next-line
   "C-k" 'ivy-previous-line)
 
+(setq org-startup-folded t)
+(setq org-startup-with-inline-images t)
+(setq org-startup-with-latex-preview t)
+(setq org-hide-block-startup t)
+
 (setq org-todo-keywords '((sequence "TODO" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
 (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray")))
 (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
-(setq org-startup-folded t)
 (setq org-return-follows-link t)
 (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
 (setq org-hide-emphasis-markers t)
@@ -319,10 +327,10 @@
 (setq org-deadline-warning-days 2)
 (setq org-tags-column -60)
 (setq org-log-done 'time)
-(setq org-hide-block-startup t)
 (setq org-log-into-drawer t)
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
+(setq org-image-actual-width '(400))
 
 (setq org-format-latex-options '(:foreground default
                                              :background default
@@ -349,7 +357,7 @@
                                      "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
                                     ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
                                     ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                                    ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n** TODO  %?\n** Reflection")))
+                                    ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")))
 
 (add-list-to-var 'my-oc-templates '(("a" "Agenda Items")
                                     ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
@@ -398,15 +406,15 @@
   (org-roam-directory (expand-file-name "~/.emacs.d/org/roam"))
   (org-roam-completion-everywhere t)
   (org-roam-v2-ack t)
-  (org-roam-capture-templates '(("b" "blank" plain "%?"
-                                 :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+TITLE: ${title}\n")
+  (org-roam-capture-templates '(("n" "Note" plain "%?"
+                                 :target (file+head "%<%Y%m%d%H%M%S>-${slug}.org" "#+filetags: :note:\n#+TITLE: ${title}\n\n* Questions")
                                  :unnarrowed t)
-                                ("c" "Concept" plain "* Questions\n* Summary\n  %?\n* Relevance\n"
-                                 :target (file+head "%<%Y%m%d%H%M%S>-concept_${slug}.org" "#+filetags: :concept:\n#+TITLE: ${title}")
-                                 :unnarrowed t)
-                                ("h" "Hoard" plain "* Concepts\n* Hoard\n %?"
-                                 :target (file+head "%<%Y%m%d%H%M%S>-hoard_${slug}.org" "#+filetags: :hoard:\n#+TITLE: ${title}")
-                                 :unnarrowed t)
+                                ;; ("c" "Concept" plain "* Questions\n* Summary\n  %?\n* Relevance\n"
+                                ;;  :target (file+head "%<%Y%m%d%H%M%S>-concept_${slug}.org" "#+filetags: :concept:\n#+TITLE: ${title}")
+                                ;;  :unnarrowed t)
+                                ;; ("h" "Hoard" plain "* Concepts\n* Hoard\n %?"
+                                ;;  :target (file+head "%<%Y%m%d%H%M%S>-hoard_${slug}.org" "#+filetags: :hoard:\n#+TITLE: ${title}")
+                                ;;  :unnarrowed t)
                                 ("t" "Thought" plain "*  %?"
                                  :target (file+head "%<%Y%m%d%H%M%S>-thought_${slug}.org" "#+filetags: :thought\n#+TITLE: ${title}")
                                  :unnarrowed t)))
@@ -417,9 +425,17 @@
                                         ("m" "moment" entry "* %<%I:%M %p> %?"
                                          :target (file+head "%<%Y-%m-%d>.org" "#+TITLE: %<%Y-%m-%d>\n")
                                          :unnarrowed t)))
+  (org-roam-file-exclude-regexp "\\(inbox.org\\)\\|\\(work.org\\)\\|\\(daily/\\)\\|\\(mistakes.org\\)")
   :config
   (require 'org-roam-dailies)
   (org-roam-db-autosync-mode))
+
+(use-package org-roam-ui
+  :config
+  (setq org-roam-ui-sync-theme t
+        org-roam-ui-follow t
+        org-roam-ui-update-on-save t
+        org-roam-ui-open-on-start t))
 
 (defun my-org-appear-trigger-function ()
   (interactive)
