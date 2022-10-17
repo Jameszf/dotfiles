@@ -331,6 +331,13 @@
 (setq org-clock-persist 'history)
 (org-clock-persistence-insinuate)
 (setq org-image-actual-width '(400))
+(setq org-confirm-babel-evaluate nil)
+(setq org-export-babel-evaluate nil)
+
+(setq org-babel-default-header-args:sage '((:session . t)
+                                           (:results . "output")))
+(setq sage-shell:check-ipython-version-on-startup nil)
+(setq sage-shell:set-ipython-version-on-startup nil)
 
 (setq org-format-latex-options '(:foreground default
                                              :background default
@@ -541,3 +548,10 @@
 (use-package ox-hugo
   :pin melpa
   :after ox)
+
+(use-package sage-shell-mode
+  :diminish t)
+
+(use-package ob-sagemath
+  :after sage-shell-mode
+  :demand t)

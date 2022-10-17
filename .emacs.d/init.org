@@ -474,7 +474,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
 * Org
 ** Config
 Startup Properties.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp 
   (setq org-startup-folded t)
   (setq org-startup-with-inline-images t)
   (setq org-startup-with-latex-preview t)
@@ -498,7 +498,13 @@ Rest of the config.
   (setq org-clock-persist 'history)
   (org-clock-persistence-insinuate)
   (setq org-image-actual-width '(400))
+  (setq org-confirm-babel-evaluate nil)
+  (setq org-export-babel-evaluate nil)
 
+  (setq org-babel-default-header-args:sage '((:session . t)
+                                             (:results . "output")))
+  (setq sage-shell:check-ipython-version-on-startup nil)
+  (setq sage-shell:set-ipython-version-on-startup nil)
 #+end_src
 *** Latex Preview
 #+begin_src emacs-lisp
@@ -783,4 +789,18 @@ evil-easymotion is not on ELPA or MELPA.
   (use-package ox-hugo
     :pin melpa
     :after ox)
+#+end_src
+
+** Sage
+Sage-shell-mode
+#+begin_src emacs-lisp
+  (use-package sage-shell-mode
+    :diminish t)
+#+end_src
+
+Ob-sagemath. For Org-babel code blocks.
+#+begin_src emacs-lisp
+  (use-package ob-sagemath
+    :after sage-shell-mode
+    :demand t)
 #+end_src
