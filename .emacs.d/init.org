@@ -413,6 +413,12 @@ Helpful commands as well as find-library that I use for understanding packages/c
   (apps-leader-def
     "e" '(elfeed :which-key "Elfeed"))
 #+end_src
+*** Projectile
+#+begin_src emacs-lisp
+  (my-leader-def
+    "p" '(projectile-command-map :which-key "Projectile"))
+#+end_src
+
 ** Modes
 *** Org-Agenda
 #+begin_src emacs-lisp
@@ -424,7 +430,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
 *** Evil
 #+begin_src emacs-lisp
   (general-define-key
-   :states 'insert
+   :states '(insert replace)
    (general-chord "fd") 'evil-normal-state
    (general-chord "df") 'evil-normal-state)
 
@@ -433,6 +439,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
    "j" 'evil-next-visual-line
    "k" 'evil-previous-visual-line)
 #+end_src
+
 *** Info
 #+begin_src emacs-lisp
   (general-define-key
@@ -803,4 +810,11 @@ Ob-sagemath. For Org-babel code blocks.
   (use-package ob-sagemath
     :after sage-shell-mode
     :demand t)
+#+end_src
+
+** Projectile
+#+begin_src emacs-lisp
+  (use-package projectile
+    :config
+    (projectile-mode 1))
 #+end_src

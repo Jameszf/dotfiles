@@ -264,13 +264,16 @@
 (apps-leader-def
   "e" '(elfeed :which-key "Elfeed"))
 
+(my-leader-def
+  "p" '(projectile-command-map :which-key "Projectile"))
+
 (general-define-key
  :keymaps 'org-agenda-mode-map
  "j" 'org-agenda-next-line
  "k" 'org-agenda-previous-line)
 
 (general-define-key
- :states 'insert
+ :states '(insert replace)
  (general-chord "fd") 'evil-normal-state
  (general-chord "df") 'evil-normal-state)
 
@@ -555,3 +558,20 @@
 (use-package ob-sagemath
   :after sage-shell-mode
   :demand t)
+
+(use-package projectile
+  :config
+  (projectile-mode 1))
+(custom-set-variables
+ ;; custom-set-variables was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ '(package-selected-packages
+   '(projectile which-key use-package restart-emacs rainbow-delimiters ox-hugo org-superstar org-roam-ui org-bullets org-appear ob-sagemath magit key-chord ivy-rich helpful general flycheck evil-easymotion evil-collection elfeed-org diminish deft counsel company auto-package-update)))
+(custom-set-faces
+ ;; custom-set-faces was added by Custom.
+ ;; If you edit it by hand, you could mess it up, so be careful.
+ ;; Your init file should contain only one such instance.
+ ;; If there is more than one, they won't work right.
+ )
