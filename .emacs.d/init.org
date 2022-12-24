@@ -390,14 +390,15 @@ Generic commands for manipulating the Emacs editor system.
 *** Help
 Helpful commands as well as find-library that I use for understanding packages/commands.
 #+begin_src emacs-lisp
-      (my-leader-def
-        "h" '(:ignore t :which-key "Help")
-        "h f" '(helpful-callable :which-key "Function")
-        "h v" '(helpful-variable :which-key "Variable")
-        "h k" '(helpful-key :which-key "Key")
-        "h d" '(helpful-at-point :which-key "At point")
-        "h l" '(find-library :which-key "Library")
-        "h i" '(info :which-key "Info"))
+  (my-leader-def
+    "h" '(:ignore t :which-key "Help")
+    "h f" '(helpful-callable :which-key "Function")
+    "h v" '(helpful-variable :which-key "Variable")
+    "h k" '(helpful-key :which-key "Key")
+    "h d" '(helpful-at-point :which-key "At point")
+    "h l" '(find-library :which-key "Library")
+    "h i" '(info :which-key "Info")
+    "h a" '(apropos-command :which-key "Apropos"))
 #+end_src
 *** Insert
 #+begin_src emacs-lisp

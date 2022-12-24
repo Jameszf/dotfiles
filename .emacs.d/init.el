@@ -268,7 +268,8 @@
   "h k" '(helpful-key :which-key "Key")
   "h d" '(helpful-at-point :which-key "At point")
   "h l" '(find-library :which-key "Library")
-  "h i" '(info :which-key "Info"))
+  "h i" '(info :which-key "Info")
+  "h a" '(apropos-command :which-key "Apropos"))
 
 (my-leader-def
   "i" '(:ignore t :which-key "Insert")
