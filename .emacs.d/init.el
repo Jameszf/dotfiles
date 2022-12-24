@@ -72,14 +72,17 @@
     (add-to-list 'common-files `(,(format "[%s] %s" (upcase name) cfpath) . ,cfpath))))
 
 (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
-                             "~/.emacs.d/org/roam/reflections.org"
-                             "~/.emacs.d/org/roam/bibliography.org"
-                             "~/.emacs.d/org/agenda/gtd.org"
-                             "~/.emacs.d/org/roam/mistakes.org"
-                             "~/.emacs.d/init.el"
-                             "~/.emacs.d/org/roam/bookmarks.org"
-                             "~/.emacs.d/org/roam/problems.org"
-                             "~/.emacs.d/org/roam/work.org")))
+			     "~/.emacs.d/org/roam/reflections.org"
+			     "~/.emacs.d/org/roam/bibliography.org"
+			     "~/.emacs.d/org/agenda/gtd.org"
+			     "~/.emacs.d/org/roam/mistakes.org"
+			     "~/.emacs.d/init.el"
+			     "~/.emacs.d/org/roam/bookmarks.org"
+			     "~/.emacs.d/org/roam/problems.org"
+			     "~/.emacs.d/org/roam/work.org"
+			     "~/.emacs.d/org/roam/food.org"
+			     "~/.emacs.d/org/roam/code.org"
+			     "~/.emacs.d/org/roam/drill.org")))
   (mapcar 'add-common-file common-files-to-add))
 
 (defun restart-emacs-debug-mode ()
@@ -128,12 +131,52 @@
   (kill-new buffer-file-name))
 
 
+(defun delete-buffer-file ()
+  (interactive)
+  (let ((current-file (buffer-file-name)))
+    (if current-file
+        (progn
+          (save-buffer current-file)
+          (delete-file current-file)
+          (kill-buffer (current-buffer))))))
+
+
 (defun ins-checkbox-item ()
   (interactive)
   (insert "- [ ]  "))
 
 
 (message "Functions loaded in...")
+
+(defun screenshot-p (file)
+  (when (and (>= (length file) 16) (string= "Screenshot from " (substring file 0 16)))
+    (progn file)))
+
+
+(defun get-screenshot-files ()
+  (let ((screenshot-files '()))
+    (progn
+      (dolist (file (directory-files "~/Pictures"))
+	(when (screenshot-p file)
+	  (setq screenshot-files (cons file screenshot-files))))
+      screenshot-files)))
+
+
+(defun insert-screenshot (filename)
+  (progn 
+    (org-insert-link nil filename "")
+    (org-redisplay-inline-images)))
+
+
+(defun move-and-insert-screenshot ()
+  (interactive)
+  (ivy-read "Copy Image to ~/.emacs.d/org/images/" (get-screenshot-files)
+	    :action (lambda (selection)
+		      (let ((new-file-name (concat "~/.emacs.d/org/images/" (read-string "New Image Name: ") ".png"))
+			    (file-to-copy (concat "~/Pictures/" selection)))
+			(progn
+			  (copy-file file-to-copy new-file-name)
+			  (insert-screenshot (concat "file:" new-file-name)))))))
 
 (use-package general)
 
@@ -165,7 +208,8 @@
   "o l" '(org-add-note :which-key "Logbook entry")
   "o n" '(:ignore t :which-key "Narrow")
   "o n s" '(org-narrow-to-subtree :which-key "Subtree")
-  "o n w" '(widen :which-key "Widen"))
+  "o n w" '(widen :which-key "Widen")
+  "o r" '(org-redisplay-inline-images :whick-key "Redisplay Inline Images"))
 
 (my-leader-def
   "o k" '(:ignore t :which-key "Clock")
@@ -214,7 +258,8 @@
 (my-leader-def
 "f" '(:ignore t :which-key "Files")
 "f f" '(find-file :which-key "Find File")
-"f c" '(open-common-file :which-key "Common Files"))
+"f c" '(open-common-file :which-key "Common Files")
+"f d" '(dired :which-key "Dired"))
 
 (my-leader-def
   "h" '(:ignore t :which-key "Help")
@@ -222,7 +267,8 @@
   "h v" '(helpful-variable :which-key "Variable")
   "h k" '(helpful-key :which-key "Key")
   "h d" '(helpful-at-point :which-key "At point")
-  "h l" '(find-library :which-key "Library"))
+  "h l" '(find-library :which-key "Library")
+  "h i" '(info :which-key "Info"))
 
 (my-leader-def
   "i" '(:ignore t :which-key "Insert")
@@ -241,7 +287,7 @@
   "a" '(:ignore t :which-key "Apps"))
 
 (apps-leader-def
-"d" '(deft :which-key "Deft"))
+"d" '(org-drill :which-key "Drill"))
 
 (apps-leader-def 
   "s" '(swiper :which-key "Swiper"))
@@ -259,13 +305,14 @@
   "b" '(counsel-bookmark :which-key "Bookmarks"))
 
 (apps-leader-def
-  "d" '(dired :which-key "Dired"))
-
-(apps-leader-def
   "e" '(elfeed :which-key "Elfeed"))
 
 (my-leader-def
   "p" '(projectile-command-map :which-key "Projectile"))
+
+(my-leader-def
+  "s m" '(move-and-insert-screenshot :which-key "Move+Insert Screenshoot")
+  "s i" '(insert-screenshot :which-key "Insert Screenshot"))
 
 (general-define-key
  :keymaps 'org-agenda-mode-map
@@ -327,7 +374,7 @@
 (setq org-hide-emphasis-markers t)
 (setq org-hidden-keywords '(title))
 (setq org-adapt-indentation t)
-(setq org-deadline-warning-days 2)
+(setq org-deadline-warning-days 0)
 (setq org-tags-column -60)
 (setq org-log-done 'time)
 (setq org-log-into-drawer t)
@@ -364,10 +411,11 @@
 
 (defvar my-oc-templates '())
 (add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
-                                     "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
+                                     "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n")
                                     ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
                                     ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                                    ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")))
+                                    ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")
+                                    ("f" "Food" entry (file+headline "~/.emacs.d/org/roam/food.org" "Food Journal") "** [%<%d/%m/%Y>]\n + Breakfast :: %?\n + Lunch :: \n + Dinner :: \n + Misc :: ")))
 
 (add-list-to-var 'my-oc-templates '(("a" "Agenda Items")
                                     ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
@@ -402,6 +450,7 @@
 (require 'org-tempo)
 
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+(add-to-list 'org-structure-template-alist '("sa" . "src sage"))
 (add-to-list 'org-structure-template-alist '("e" . "example"))
 
 (use-package org-roam
@@ -488,6 +537,12 @@
 
 (message "Org loaded in...")
 
+(use-package org-drill
+  :custom
+  (org-drill-scope '("~/.emacs.d/org/roam/drill.org"))
+  (org-drill-hide-item-headings-p t)
+  (org-drill-maximum-items-per-session nil))
+
 (use-package evil
   :demand t
   :diminish
@@ -562,16 +617,3 @@
 (use-package projectile
   :config
   (projectile-mode 1))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(projectile which-key use-package restart-emacs rainbow-delimiters ox-hugo org-superstar org-roam-ui org-bullets org-appear ob-sagemath magit key-chord ivy-rich helpful general flycheck evil-easymotion evil-collection elfeed-org diminish deft counsel company auto-package-update)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

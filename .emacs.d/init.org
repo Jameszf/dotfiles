@@ -150,14 +150,17 @@ Code for my common-files command. This command allows easy opening of files (in 
       (add-to-list 'common-files `(,(format "[%s] %s" (upcase name) cfpath) . ,cfpath))))
 
   (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
-                               "~/.emacs.d/org/roam/reflections.org"
-                               "~/.emacs.d/org/roam/bibliography.org"
-                               "~/.emacs.d/org/agenda/gtd.org"
-                               "~/.emacs.d/org/roam/mistakes.org"
-                               "~/.emacs.d/init.el"
-                               "~/.emacs.d/org/roam/bookmarks.org"
-                               "~/.emacs.d/org/roam/problems.org"
-                               "~/.emacs.d/org/roam/work.org")))
+			       "~/.emacs.d/org/roam/reflections.org"
+			       "~/.emacs.d/org/roam/bibliography.org"
+			       "~/.emacs.d/org/agenda/gtd.org"
+			       "~/.emacs.d/org/roam/mistakes.org"
+			       "~/.emacs.d/init.el"
+			       "~/.emacs.d/org/roam/bookmarks.org"
+			       "~/.emacs.d/org/roam/problems.org"
+			       "~/.emacs.d/org/roam/work.org"
+			       "~/.emacs.d/org/roam/food.org"
+			       "~/.emacs.d/org/roam/code.org"
+			       "~/.emacs.d/org/roam/drill.org")))
     (mapcar 'add-common-file common-files-to-add))
 #+end_src
 
@@ -215,12 +218,55 @@ Custom commands.
     (kill-new buffer-file-name))
 
 
+  (defun delete-buffer-file ()
+    (interactive)
+    (let ((current-file (buffer-file-name)))
+      (if current-file
+          (progn
+            (save-buffer current-file)
+            (delete-file current-file)
+            (kill-buffer (current-buffer))))))
+
+
   (defun ins-checkbox-item ()
     (interactive)
     (insert "- [ ]  "))
 
 
   (message "Functions loaded in...")
+#+end_src
+
+Moving screenshots.
+#+begin_src emacs-lisp
+  (defun screenshot-p (file)
+    (when (and (>= (length file) 16) (string= "Screenshot from " (substring file 0 16)))
+      (progn file)))
+
+
+  (defun get-screenshot-files ()
+    (let ((screenshot-files '()))
+      (progn
+	(dolist (file (directory-files "~/Pictures"))
+	  (when (screenshot-p file)
+	    (setq screenshot-files (cons file screenshot-files))))
+	screenshot-files)))
+
+
+  (defun insert-screenshot (filename)
+    (progn 
+      (org-insert-link nil filename "")
+      (org-redisplay-inline-images)))
+
+
+  (defun move-and-insert-screenshot ()
+    (interactive)
+    (ivy-read "Copy Image to ~/.emacs.d/org/images/" (get-screenshot-files)
+	      :action (lambda (selection)
+			(let ((new-file-name (concat "~/.emacs.d/org/images/" (read-string "New Image Name: ") ".png"))
+			      (file-to-copy (concat "~/Pictures/" selection)))
+			  (progn
+			    (copy-file file-to-copy new-file-name)
+			    (insert-screenshot (concat "file:" new-file-name)))))))
 #+end_src
 * Keybinds
 ** General, Key-Chord, and Which-key
@@ -266,14 +312,15 @@ The leader key defines the primary prefix of my personal keybinds. Vim introduce
       :global-prefix "C-SPC")
 #+end_src
 *** Org
-General Org-mode keybinds.
+    General Org-mode keybinds.
 #+begin_src emacs-lisp
-        (my-leader-def
-          "o" '(:ignore t :which-key "Org-mode")
-          "o l" '(org-add-note :which-key "Logbook entry")
-          "o n" '(:ignore t :which-key "Narrow")
-          "o n s" '(org-narrow-to-subtree :which-key "Subtree")
-          "o n w" '(widen :which-key "Widen"))
+  (my-leader-def
+    "o" '(:ignore t :which-key "Org-mode")
+    "o l" '(org-add-note :which-key "Logbook entry")
+    "o n" '(:ignore t :which-key "Narrow")
+    "o n s" '(org-narrow-to-subtree :which-key "Subtree")
+    "o n w" '(widen :which-key "Widen")
+    "o r" '(org-redisplay-inline-images :whick-key "Redisplay Inline Images"))
 #+end_src
 
 Useful Org-mode clocking commands.
@@ -314,17 +361,17 @@ Useful Org-mode archiving commands.
 *** Emacs
 Generic commands for manipulating the Emacs editor system.
 #+begin_src emacs-lisp
-      (my-leader-def
-        "e" '(:ignore t :which-key "Emacs")
-        "e c" '(open-emacs-config-file :which-key "Open config file")
-        "e r" '(restart-emacs :which-key "Regular restart")
-        "e d" '(restart-emacs-debug-mode :which-key "Debug mode restart")
-        "e n" '(restart-emacs-no-init :which-key "No init restart")
-        "e s" '(create-scratch-buffer :which-key "Open scratch buffer")
-        "e l" '(load-config-file :which-key "Load config file")
-        "e m" '(view-echo-area-messages :which-key "Echo messages")
-        "e q" '(save-buffers-kill-terminal :which-key "Quit")
-        "e e" '(eval-buffer :which-key "Eval Buffer"))
+  (my-leader-def
+    "e" '(:ignore t :which-key "Emacs")
+    "e c" '(open-emacs-config-file :which-key "Open config file")
+    "e r" '(restart-emacs :which-key "Regular restart")
+    "e d" '(restart-emacs-debug-mode :which-key "Debug mode restart")
+    "e n" '(restart-emacs-no-init :which-key "No init restart")
+    "e s" '(create-scratch-buffer :which-key "Open scratch buffer")
+    "e l" '(load-config-file :which-key "Load config file")
+    "e m" '(view-echo-area-messages :which-key "Echo messages")
+    "e q" '(save-buffers-kill-terminal :which-key "Quit")
+    "e e" '(eval-buffer :which-key "Eval Buffer"))
 #+end_src
 *** Ivy and Counsel
 #+begin_src emacs-lisp
@@ -334,21 +381,23 @@ Generic commands for manipulating the Emacs editor system.
 #+end_src
 *** Files
 #+begin_src emacs-lisp
-  (my-leader-def
-  "f" '(:ignore t :which-key "Files")
-  "f f" '(find-file :which-key "Find File")
-  "f c" '(open-common-file :which-key "Common Files"))
+    (my-leader-def
+    "f" '(:ignore t :which-key "Files")
+    "f f" '(find-file :which-key "Find File")
+    "f c" '(open-common-file :which-key "Common Files")
+    "f d" '(dired :which-key "Dired"))
 #+end_src
 *** Help
 Helpful commands as well as find-library that I use for understanding packages/commands.
 #+begin_src emacs-lisp
-    (my-leader-def
-      "h" '(:ignore t :which-key "Help")
-      "h f" '(helpful-callable :which-key "Function")
-      "h v" '(helpful-variable :which-key "Variable")
-      "h k" '(helpful-key :which-key "Key")
-      "h d" '(helpful-at-point :which-key "At point")
-      "h l" '(find-library :which-key "Library"))
+      (my-leader-def
+        "h" '(:ignore t :which-key "Help")
+        "h f" '(helpful-callable :which-key "Function")
+        "h v" '(helpful-variable :which-key "Variable")
+        "h k" '(helpful-key :which-key "Key")
+        "h d" '(helpful-at-point :which-key "At point")
+        "h l" '(find-library :which-key "Library")
+        "h i" '(info :which-key "Info"))
 #+end_src
 *** Insert
 #+begin_src emacs-lisp
@@ -376,7 +425,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
 **** Deft
 #+begin_src emacs-lisp
   (apps-leader-def
-  "d" '(deft :which-key "Deft"))
+  "d" '(org-drill :which-key "Drill"))
 #+end_src
 **** Swiper
 #+begin_src emacs-lisp
@@ -403,11 +452,6 @@ Helpful commands as well as find-library that I use for understanding packages/c
   (apps-leader-def
     "b" '(counsel-bookmark :which-key "Bookmarks"))
 #+end_src
-**** Dired
-#+begin_src emacs-lisp
-  (apps-leader-def
-    "d" '(dired :which-key "Dired"))
-#+end_src
 **** Elfeed
 #+begin_src emacs-lisp
   (apps-leader-def
@@ -417,6 +461,13 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+begin_src emacs-lisp
   (my-leader-def
     "p" '(projectile-command-map :which-key "Projectile"))
+#+end_src
+
+*** Scripts
+#+begin_src emacs-lisp
+  (my-leader-def
+    "s m" '(move-and-insert-screenshot :which-key "Move+Insert Screenshoot")
+    "s i" '(insert-screenshot :which-key "Insert Screenshot"))
 #+end_src
 
 ** Modes
@@ -498,7 +549,7 @@ Rest of the config.
   (setq org-hide-emphasis-markers t)
   (setq org-hidden-keywords '(title))
   (setq org-adapt-indentation t)
-  (setq org-deadline-warning-days 2)
+  (setq org-deadline-warning-days 0)
   (setq org-tags-column -60)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
@@ -538,12 +589,13 @@ Rest of the config.
 *** Org-capture templates
 Base
 #+begin_src emacs-lisp 
-    (defvar my-oc-templates '())
-    (add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
-                                         "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n** Notes\n")
-                                        ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                                        ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                                        ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")))
+      (defvar my-oc-templates '())
+      (add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
+                                           "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n")
+                                          ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
+                                          ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
+                                          ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")
+                                          ("f" "Food" entry (file+headline "~/.emacs.d/org/roam/food.org" "Food Journal") "** [%<%d/%m/%Y>]\n + Breakfast :: %?\n + Lunch :: \n + Dinner :: \n + Misc :: ")))
 #+end_src
 
 Agenda 
@@ -598,6 +650,7 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
   (require 'org-tempo)
 
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
+  (add-to-list 'org-structure-template-alist '("sa" . "src sage"))
   (add-to-list 'org-structure-template-alist '("e" . "example"))
 #+end_src
 
@@ -696,6 +749,14 @@ UI
 
 #+begin_src emacs-lisp
   (message "Org loaded in...")
+#+end_src
+** Drill
+#+begin_src emacs-lisp
+  (use-package org-drill
+    :custom
+    (org-drill-scope '("~/.emacs.d/org/roam/drill.org"))
+    (org-drill-hide-item-headings-p t)
+    (org-drill-maximum-items-per-session nil))
 #+end_src
 * Evil
 #+begin_src emacs-lisp
