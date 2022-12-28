@@ -9,6 +9,8 @@
             (setq tab-width 4)
             (setq python-indent-offset 4)))
 
+(add-hook 'prog-mode-hook 'electric-pair-mode)
+
 ;; Disable mouse-centric menus.
 (setq initial-scratch-message "")
 (setq inhibit-startup-message t)
@@ -269,7 +271,7 @@
   "h d" '(helpful-at-point :which-key "At point")
   "h l" '(find-library :which-key "Library")
   "h i" '(info :which-key "Info")
-  "h a" '(apropos-command :which-key "Apropos"))
+  "h a" '(apropos :which-key "Apropos"))
 
 (my-leader-def
   "i" '(:ignore t :which-key "Insert")
@@ -584,8 +586,9 @@
 (use-package flycheck)
 ;;  :init (global-flycheck-mode))
 
-(use-package company)
-;;:hook (prog-mode . global-company-mode))
+(use-package company
+  :diminish t
+  :hook (prog-mode . company-mode))
 
 (use-package restart-emacs)
 
@@ -618,3 +621,7 @@
 (use-package projectile
   :config
   (projectile-mode 1))
+
+(use-package eglot
+  :hook ((c-mode . eglot-ensure)
+         (c++-mode . eglot-ensure)))

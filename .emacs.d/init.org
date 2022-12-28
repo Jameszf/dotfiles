@@ -19,6 +19,7 @@
  + Create minor mode for personal Info keybinds.
  + Incorporate hydra into keybinds.
  + Modify CP Problem capture template to allow selection of "TODO" or "SOLVED" keywords.
+ + [[https://www.lucacambiaghi.com/vanilla-emacs/readme.html#h:24A7FE78-E6B9-4C81-A2BE-6A049A8209AD][Luca's Config]]
 * Packages to investigate
   + evil-join
   + default-indent-new-line
@@ -38,6 +39,11 @@
   + deft/deft-mode
   + evil-multiedit
   + moldable-emacs.
+  + project.el
+  + perspective.el
+  + treesitter
+  + eglot
+  + xref
 
 * Issues
  + Figure out function name scope.
@@ -61,6 +67,8 @@
               (setq indent-tabs-mode t)
               (setq tab-width 4)
               (setq python-indent-offset 4)))
+
+  (add-hook 'prog-mode-hook 'electric-pair-mode)
 #+end_src
 ** UI
 #+begin_src emacs-lisp
@@ -398,7 +406,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "h d" '(helpful-at-point :which-key "At point")
     "h l" '(find-library :which-key "Library")
     "h i" '(info :which-key "Info")
-    "h a" '(apropos-command :which-key "Apropos"))
+    "h a" '(apropos :which-key "Apropos"))
 #+end_src
 *** Insert
 #+begin_src emacs-lisp
@@ -818,8 +826,9 @@ evil-easymotion is not on ELPA or MELPA.
 
 ** Company
 #+begin_src emacs-lisp
-  (use-package company)
-  ;;:hook (prog-mode . global-company-mode))
+  (use-package company
+    :diminish t
+    :hook (prog-mode . company-mode))
 #+end_src
 
 ** Restart-emacs
@@ -880,3 +889,13 @@ Ob-sagemath. For Org-babel code blocks.
     :config
     (projectile-mode 1))
 #+end_src
+
+** Eglot
+#+begin_src emacs-lisp
+      (use-package eglot
+        :hook ((c-mode . eglot-ensure)
+               (c++-mode . eglot-ensure)))
+#+end_src
+
+
+
