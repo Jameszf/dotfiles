@@ -547,6 +547,10 @@
   (org-drill-hide-item-headings-p t)
   (org-drill-maximum-items-per-session nil))
 
+(use-package ox-hugo
+  :pin melpa
+  :after ox)
+
 (use-package evil
   :demand t
   :diminish
@@ -579,10 +583,17 @@
 
 (message "Ivy and Counsel loaded in...")
 
+(use-package sage-shell-mode
+  :diminish t)
+
+(use-package ob-sagemath
+  :after sage-shell-mode
+  :demand t)
+
+(use-package haskell-mode)
+
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
-
-(use-package helpful)
 
 (use-package flycheck)
 ;;  :init (global-flycheck-mode))
@@ -591,9 +602,18 @@
   :diminish t
   :hook (prog-mode . company-mode))
 
-(use-package restart-emacs)
+(use-package eglot
+  :hook ((c-mode . eglot-ensure)
+         (c++-mode . eglot-ensure)))
+
+(use-package yasnippet
+  :config (yas-global-mode 1))
 
 (use-package magit)
+
+(use-package helpful)
+
+(use-package restart-emacs)
 
 (use-package elfeed
   :diminish)
@@ -607,40 +627,3 @@
   :custom
   (deft-directory (expand-file-name "~/.emacs.d/org/"))
   (deft-recursive t ))
-
-(use-package ox-hugo
-  :pin melpa
-  :after ox)
-
-(use-package sage-shell-mode
-  :diminish t)
-
-(use-package ob-sagemath
-  :after sage-shell-mode
-  :demand t)
-
-(use-package projectile
-  :config
-  (projectile-mode 1))
-
-(use-package eglot
-  :hook ((c-mode . eglot-ensure)
-         (c++-mode . eglot-ensure)))
-
-(use-package haskell-mode)
-
-(use-package yasnippet
-  :config (yas-global-mode 1))
-(custom-set-variables
- ;; custom-set-variables was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- '(package-selected-packages
-   '(yasnippet which-key use-package restart-emacs rainbow-delimiters projectile ox-hugo org-superstar org-roam-ui org-drill org-bullets org-appear ob-sagemath magit key-chord ivy-rich helpful haskell-mode general flycheck evil-easymotion evil-collection elfeed-org eglot diminish deft counsel company auto-package-update)))
-(custom-set-faces
- ;; custom-set-faces was added by Custom.
- ;; If you edit it by hand, you could mess it up, so be careful.
- ;; Your init file should contain only one such instance.
- ;; If there is more than one, they won't work right.
- )

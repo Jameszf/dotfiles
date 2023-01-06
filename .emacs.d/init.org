@@ -768,6 +768,13 @@ UI
     (org-drill-hide-item-headings-p t)
     (org-drill-maximum-items-per-session nil))
 #+end_src
+** Ox-Hugo
+#+begin_src emacs-lisp
+  (use-package ox-hugo
+    :pin melpa
+    :after ox)
+#+end_src
+
 * Evil
 #+begin_src emacs-lisp
   (use-package evil
@@ -808,16 +815,30 @@ evil-easymotion is not on ELPA or MELPA.
 
   (message "Ivy and Counsel loaded in...")
 #+end_src
-* Misc
+* Extra Programming Packages
+** Language Modes
+Sage-shell-mode
+#+begin_src emacs-lisp
+  (use-package sage-shell-mode
+    :diminish t)
+#+end_src
+
+Ob-sagemath. For compatiability with Org-babel code blocks.
+#+begin_src emacs-lisp
+  (use-package ob-sagemath
+    :after sage-shell-mode
+    :demand t)
+#+end_src
+
+Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
+#+begin_src emacs-lisp
+  (use-package haskell-mode)
+#+end_src
+
 ** Rainbow-delimiters
 #+begin_src emacs-lisp
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
-#+end_src
-** Helpful
-
-#+begin_src emacs-lisp
-  (use-package helpful)
 #+end_src
 ** Flycheck
 #+begin_src emacs-lisp
@@ -832,14 +853,33 @@ evil-easymotion is not on ELPA or MELPA.
     :hook (prog-mode . company-mode))
 #+end_src
 
-** Restart-emacs
+** Eglot
 #+begin_src emacs-lisp
-(use-package restart-emacs)
+  (use-package eglot
+    :hook ((c-mode . eglot-ensure)
+           (c++-mode . eglot-ensure)))
+#+end_src
+
+** Yasnippet
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :config (yas-global-mode 1))
 #+end_src
 
 ** Magit
 #+begin_src emacs-lisp
 (use-package magit)
+#+end_src
+
+* Misc
+** Helpful
+
+#+begin_src emacs-lisp
+  (use-package helpful)
+#+end_src
+** Restart-emacs
+#+begin_src emacs-lisp
+(use-package restart-emacs)
 #+end_src
 
 ** Elfeed
@@ -863,48 +903,3 @@ evil-easymotion is not on ELPA or MELPA.
     (deft-recursive t ))
 #+end_src
 
-** Ox-Hugo
-#+begin_src emacs-lisp
-  (use-package ox-hugo
-    :pin melpa
-    :after ox)
-#+end_src
-
-** Sage
-Sage-shell-mode
-#+begin_src emacs-lisp
-  (use-package sage-shell-mode
-    :diminish t)
-#+end_src
-
-Ob-sagemath. For Org-babel code blocks.
-#+begin_src emacs-lisp
-  (use-package ob-sagemath
-    :after sage-shell-mode
-    :demand t)
-#+end_src
-
-** Projectile
-#+begin_src emacs-lisp
-  (use-package projectile
-    :config
-    (projectile-mode 1))
-#+end_src
-
-** Eglot
-#+begin_src emacs-lisp
-  (use-package eglot
-    :hook ((c-mode . eglot-ensure)
-           (c++-mode . eglot-ensure)))
-#+end_src
-
-** Haskell-mode
-#+begin_src emacs-lisp
-  (use-package haskell-mode)
-#+end_src
-
-** Yasnippet
-#+begin_src emacs-lisp
-  (use-package yasnippet
-    :config (yas-global-mode 1))
-#+end_src
