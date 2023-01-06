@@ -661,6 +661,7 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("sa" . "src sage"))
   (add-to-list 'org-structure-template-alist '("e" . "example"))
+  (add-to-list 'org-structure-template-alist '("ha" . "haskell"))
 #+end_src
 
 ** Roam
@@ -892,10 +893,18 @@ Ob-sagemath. For Org-babel code blocks.
 
 ** Eglot
 #+begin_src emacs-lisp
-      (use-package eglot
-        :hook ((c-mode . eglot-ensure)
-               (c++-mode . eglot-ensure)))
+  (use-package eglot
+    :hook ((c-mode . eglot-ensure)
+           (c++-mode . eglot-ensure)))
 #+end_src
 
+** Haskell-mode
+#+begin_src emacs-lisp
+  (use-package haskell-mode)
+#+end_src
 
-
+** Yasnippet
+#+begin_src emacs-lisp
+  (use-package yasnippet
+    :config (yas-global-mode 1))
+#+end_src
