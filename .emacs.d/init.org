@@ -548,11 +548,23 @@ Startup Properties.
   (setq org-hide-block-startup t)
 #+end_src
 
+Org Agenda Variables
+#+begin_src emacs-lisp
+  (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
+  (setq org-agenda-prefix-format '((agenda . " %i %-10T%?-10t%-15s")
+                                   (todo . " %i %-12:c")
+                                   (tags . " %i %-12:c")
+                                   (search . " %i %-12:c")))
+  (setq org-agenda-remove-tags t)
+  (setq org-agenda-start-on-weekday nil)
+  (setq org-agenda-start-day "-2d")
+  (setq org-agenda-span 10)
+#+end_src
+
 Rest of the config.
 #+begin_src emacs-lisp
-  (setq org-todo-keywords '((sequence "TODO" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
-  (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray")))
-  (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
+  (setq org-todo-keywords '((sequence "TODO" "WAITING" "NEXT" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
+  (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
   (setq org-return-follows-link t)
   (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
   (setq org-hide-emphasis-markers t)
