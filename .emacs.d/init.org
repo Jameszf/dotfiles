@@ -556,9 +556,13 @@ Org Agenda Variables
                                    (tags . " %i %-12:c")
                                    (search . " %i %-12:c")))
   (setq org-agenda-remove-tags t)
+<<<<<<< HEAD
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-start-day "-2d")
   (setq org-agenda-span 10)
+=======
+  (setq org-agenda-start-day -2)
+>>>>>>> ab407e0da1fe0f35c09c4d7eb1008ca557cbe82a
 #+end_src
 
 Rest of the config.
