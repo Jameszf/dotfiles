@@ -68,7 +68,7 @@
               (setq tab-width 4)
               (setq python-indent-offset 4)))
 
-  (add-hook 'prog-mode-hook 'electric-pair-mode)
+  ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
 #+end_src
 ** UI
 #+begin_src emacs-lisp
@@ -320,15 +320,17 @@ The leader key defines the primary prefix of my personal keybinds. Vim introduce
       :global-prefix "C-SPC")
 #+end_src
 *** Org
-    General Org-mode keybinds.
+General Org-mode keybinds.
 #+begin_src emacs-lisp
-  (my-leader-def
-    "o" '(:ignore t :which-key "Org-mode")
-    "o l" '(org-add-note :which-key "Logbook entry")
-    "o n" '(:ignore t :which-key "Narrow")
-    "o n s" '(org-narrow-to-subtree :which-key "Subtree")
-    "o n w" '(widen :which-key "Widen")
-    "o r" '(org-redisplay-inline-images :whick-key "Redisplay Inline Images"))
+    (my-leader-def
+      "o" '(:ignore t :which-key "Org-mode")
+      "o l" '(org-add-note :which-key "Logbook entry")
+      "o n" '(:ignore t :which-key "Narrow")
+      "o n s" '(org-narrow-to-subtree :which-key "Subtree")
+      "o n w" '(widen :which-key "Widen")
+      "o r" '(org-redisplay-inline-images :which-key "Redisplay Inline Images")
+      "o t" '(org-todo :which-key "Toggle Todo")
+      "o s" '(org-store-link :which-key "Store Org Link"))
 #+end_src
 
 Useful Org-mode clocking commands.
@@ -410,13 +412,14 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 *** Insert
 #+begin_src emacs-lisp
-      (my-leader-def
-        "i" '(:ignore t :which-key "Insert")
-        "i t" '(org-table-create-or-convert-from-region :which-key "Org table")
-        "i d" '(org-deadline :which-key "Deadline")
-        "i s" '(org-schedule :which-key "Schedule")
-        "i c" '(ins-checkbox-item :which-key "Checkbox")
-        "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link"))
+  (my-leader-def
+    "i" '(:ignore t :which-key "Insert")
+    "i t" '(org-table-create-or-convert-from-region :which-key "Org table")
+    "i d" '(org-deadline :which-key "Deadline")
+    "i s" '(org-schedule :which-key "Schedule")
+    "i c" '(ins-checkbox-item :which-key "Checkbox")
+    "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link")
+    "i l" '(org-insert-link :which-key "Org-link"))
 #+end_src
 *** Apps
 **** Leader Key
@@ -451,11 +454,6 @@ Helpful commands as well as find-library that I use for understanding packages/c
   (apps-leader-def
    "c" '(org-capture :which-key "Capture"))
 #+end_src
-**** Magit
-#+begin_src emacs-lisp
-  (apps-leader-def
-    "m" '(magit :which-key "Magit"))
-#+end_src
 **** Bookmarks
 #+begin_src emacs-lisp
   (apps-leader-def
@@ -466,15 +464,50 @@ Helpful commands as well as find-library that I use for understanding packages/c
   (apps-leader-def
     "e" '(elfeed :which-key "Elfeed"))
 #+end_src
-*** Projectile
+*** Project
 #+begin_src emacs-lisp
   (my-leader-def
-    "p" '(projectile-command-map :which-key "Projectile"))
+    "p" '(:ignore t :which-key "Project")
+    "p f" '(project-find-file :which-key "Find file")
+    "p e" '(project-eshell :which-key "Eshell")
+    "p q" '(project-query-replace-regexp :which-key "Replace w/ Regex")
+    "p c" '(project-compile :which-key "Compile")
+    "p k" '(project-kill-buffers :which-key "Kill Buffers")
+    "p s" '(project-shell-command :which-key "Shell Command")
+    "p p" '(project-switch-project :which-key "Switch Project")
+    "p b" '(project-switch-to-buffer :which-key "Switch Buffer"))
 #+end_src
 
+*** Magit
+#+begin_src emacs-lisp
+  (my-leader-def
+    "m" '(:ignore t :which-key "Magit")
+    "m m" '(magit-status :which-key "Status")
+    "m d" '(magit-dispatch :which-key "Dispatch")
+    "m f" '(magit-file-dispatch :which-key "File Dispatch"))
+#+end_src
+*** Windows
+#+begin_src emacs-lisp
+  (my-leader-def
+    "w" '(:ignore t :which-key "Window")
+    "w c" '(:ignore t :which-key "Close")
+    "w c o" '(delete-other-windows :which-key "Close other windows")
+    "w c w" '(delete-window :which-key "Close window")
+    "w s" '(:ignore t :which-key "Split")
+    "w s h" '(split-window-horizontally :which-key "Split Horizontally")
+    "w s v" '(split-window-vertically :which-key "Split Vertically"))
+#+end_src
+*** Commands
+#+begin_src emacs-lisp
+    (my-leader-def
+      "c" '(:ignore t :which-key "Commands")
+      "c r" '(replace-string :which-key "Replace")
+      "c e" '(eshell :which-key "Eshell"))
+#+end_src
 *** Scripts
 #+begin_src emacs-lisp
   (my-leader-def
+    "s" '(:ignore t :which-key "Scripts")
     "s m" '(move-and-insert-screenshot :which-key "Move+Insert Screenshoot")
     "s i" '(insert-screenshot :which-key "Insert Screenshot"))
 #+end_src
@@ -548,7 +581,7 @@ Startup Properties.
   (setq org-hide-block-startup t)
 #+end_src
 
-Org Agenda Variables
+Agenda Variables
 #+begin_src emacs-lisp
   (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
   (setq org-agenda-prefix-format '((agenda . " %i %-10T%?-10t%-15s")
@@ -556,19 +589,29 @@ Org Agenda Variables
                                    (tags . " %i %-12:c")
                                    (search . " %i %-12:c")))
   (setq org-agenda-remove-tags t)
-<<<<<<< HEAD
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-start-day "-2d")
   (setq org-agenda-span 10)
-=======
-  (setq org-agenda-start-day -2)
->>>>>>> ab407e0da1fe0f35c09c4d7eb1008ca557cbe82a
+  (setq org-agenda-custom-commands '(("d" "Dashboard"
+                                      ((agenda "" ((org-agenda-span 4)
+                                                  (org-agenda-start-day "+0d")))
+                                      (todo "NEXT")
+                                      (todo "TODO")))
+                                     ("f" "Future View"
+                                      ((agenda "" ((org-agenda-span 30)
+                                                  (org-agenda-start-day "+0d")))))))
+  (setq org-agenda-show-future-repeats t)
+#+end_src
+
+Todo keywords.
+#+begin_src emacs-lisp
+  (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
+  (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
+  (setq org-use-fast-todo-selection t)
 #+end_src
 
 Rest of the config.
 #+begin_src emacs-lisp
-  (setq org-todo-keywords '((sequence "TODO" "WAITING" "NEXT" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
-  (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
   (setq org-return-follows-link t)
   (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
   (setq org-hide-emphasis-markers t)
@@ -677,7 +720,7 @@ Enables and sets auto-complete shorthands for source code blocks. Usage: <(abbre
   (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
   (add-to-list 'org-structure-template-alist '("sa" . "src sage"))
   (add-to-list 'org-structure-template-alist '("e" . "example"))
-  (add-to-list 'org-structure-template-alist '("ha" . "haskell"))
+  (add-to-list 'org-structure-template-alist '("ha" . "src haskell"))
 #+end_src
 
 ** Roam

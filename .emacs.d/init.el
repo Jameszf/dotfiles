@@ -9,7 +9,7 @@
             (setq tab-width 4)
             (setq python-indent-offset 4)))
 
-(add-hook 'prog-mode-hook 'electric-pair-mode)
+;; (add-hook 'prog-mode-hook 'electric-pair-mode)
 
 ;; Disable mouse-centric menus.
 (setq initial-scratch-message "")
@@ -211,7 +211,9 @@
   "o n" '(:ignore t :which-key "Narrow")
   "o n s" '(org-narrow-to-subtree :which-key "Subtree")
   "o n w" '(widen :which-key "Widen")
-  "o r" '(org-redisplay-inline-images :whick-key "Redisplay Inline Images"))
+  "o r" '(org-redisplay-inline-images :which-key "Redisplay Inline Images")
+  "o t" '(org-todo :which-key "Toggle Todo")
+  "o s" '(org-store-link :which-key "Store Org Link"))
 
 (my-leader-def
   "o k" '(:ignore t :which-key "Clock")
@@ -279,7 +281,8 @@
   "i d" '(org-deadline :which-key "Deadline")
   "i s" '(org-schedule :which-key "Schedule")
   "i c" '(ins-checkbox-item :which-key "Checkbox")
-  "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link"))
+  "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link")
+  "i l" '(org-insert-link :which-key "Org-link"))
 
 (general-create-definer apps-leader-def
     :keymaps '(normal visual emacs)
@@ -302,18 +305,44 @@
  "c" '(org-capture :which-key "Capture"))
 
 (apps-leader-def
-  "m" '(magit :which-key "Magit"))
-
-(apps-leader-def
   "b" '(counsel-bookmark :which-key "Bookmarks"))
 
 (apps-leader-def
   "e" '(elfeed :which-key "Elfeed"))
 
 (my-leader-def
-  "p" '(projectile-command-map :which-key "Projectile"))
+  "p" '(:ignore t :which-key "Project")
+  "p f" '(project-find-file :which-key "Find file")
+  "p e" '(project-eshell :which-key "Eshell")
+  "p q" '(project-query-replace-regexp :which-key "Replace w/ Regex")
+  "p c" '(project-compile :which-key "Compile")
+  "p k" '(project-kill-buffers :which-key "Kill Buffers")
+  "p s" '(project-shell-command :which-key "Shell Command")
+  "p p" '(project-switch-project :which-key "Switch Project")
+  "p b" '(project-switch-to-buffer :which-key "Switch Buffer"))
 
 (my-leader-def
+  "m" '(:ignore t :which-key "Magit")
+  "m m" '(magit-status :which-key "Status")
+  "m d" '(magit-dispatch :which-key "Dispatch")
+  "m f" '(magit-file-dispatch :which-key "File Dispatch"))
+
+(my-leader-def
+  "w" '(:ignore t :which-key "Window")
+  "w c" '(:ignore t :which-key "Close")
+  "w c o" '(delete-other-windows :which-key "Close other windows")
+  "w c w" '(delete-window :which-key "Close window")
+  "w s" '(:ignore t :which-key "Split")
+  "w s h" '(split-window-horizontally :which-key "Split Horizontally")
+  "w s v" '(split-window-vertically :which-key "Split Vertically"))
+
+(my-leader-def
+  "c" '(:ignore t :which-key "Commands")
+  "c r" '(replace-string :which-key "Replace")
+  "c e" '(eshell :which-key "Eshell"))
+
+(my-leader-def
+  "s" '(:ignore t :which-key "Scripts")
   "s m" '(move-and-insert-screenshot :which-key "Move+Insert Screenshoot")
   "s i" '(insert-screenshot :which-key "Insert Screenshot"))
 
@@ -378,9 +407,20 @@
 (setq org-agenda-start-on-weekday nil)
 (setq org-agenda-start-day "-2d")
 (setq org-agenda-span 10)
+(setq org-agenda-custom-commands '(("d" "Dashboard"
+                                    ((agenda "" ((org-agenda-span 4)
+                                                (org-agenda-start-day "+0d")))
+                                    (todo "NEXT")
+                                    (todo "TODO")))
+                                   ("f" "Future View"
+                                    ((agenda "" ((org-agenda-span 30)
+                                                (org-agenda-start-day "+0d")))))))
+(setq org-agenda-show-future-repeats t)
 
-(setq org-todo-keywords '((sequence "TODO" "WAITING" "NEXT" "|" "DONE" "FAILED" "PARTIAL" "EXCUSE")))
+(setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
 (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
+(setq org-use-fast-todo-selection t)
+
 (setq org-return-follows-link t)
 (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
 (setq org-hide-emphasis-markers t)
@@ -464,7 +504,7 @@
 (add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
 (add-to-list 'org-structure-template-alist '("sa" . "src sage"))
 (add-to-list 'org-structure-template-alist '("e" . "example"))
-(add-to-list 'org-structure-template-alist '("ha" . "haskell"))
+(add-to-list 'org-structure-template-alist '("ha" . "src haskell"))
 
 (use-package org-roam
   :init
