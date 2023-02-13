@@ -5,11 +5,25 @@
 
 (add-hook 'python-mode-hook
           (lambda ()
-            (setq indent-tabs-mode t)
+            (setq indent-tabs-mode nil)
             (setq tab-width 4)
             (setq python-indent-offset 4)))
 
-;; (add-hook 'prog-mode-hook 'electric-pair-mode)
+(add-hook 'c++-mode-hook
+          (lambda ()
+            (setq indent-tabs-mode nil)
+            (setq tab-width 4)))
+
+(add-hook 'prog-mode-hook
+          (lambda ()
+            (display-line-numbers-mode 1)
+            (visual-fill-column-mode -1)))
+
+(add-hook 'text-mode-hook
+          (lambda ()
+            (visual-fill-column-mode 1)
+            (display-line-numbers-mode -1)))
+  ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
 
 ;; Disable mouse-centric menus.
 (setq initial-scratch-message "")
@@ -213,7 +227,8 @@
   "o n w" '(widen :which-key "Widen")
   "o r" '(org-redisplay-inline-images :which-key "Redisplay Inline Images")
   "o t" '(org-todo :which-key "Toggle Todo")
-  "o s" '(org-store-link :which-key "Store Org Link"))
+  "o s" '(org-store-link :which-key "Store Org Link")
+  "o q" '(org-set-tags-command :which-key "Set Tags"))
 
 (my-leader-def
   "o k" '(:ignore t :which-key "Clock")
@@ -334,12 +349,14 @@
   "w c w" '(delete-window :which-key "Close window")
   "w s" '(:ignore t :which-key "Split")
   "w s h" '(split-window-horizontally :which-key "Split Horizontally")
-  "w s v" '(split-window-vertically :which-key "Split Vertically"))
+  "w s v" '(split-window-vertically :which-key "Split Vertically")
+  "w o" '(other-window :which-key "Other Window"))
 
 (my-leader-def
   "c" '(:ignore t :which-key "Commands")
   "c r" '(replace-string :which-key "Replace")
-  "c e" '(eshell :which-key "Eshell"))
+  "c e" '(eshell :which-key "Eshell")
+  "c t" '(term :which-key "Term"))
 
 (my-leader-def
   "s" '(:ignore t :which-key "Scripts")
@@ -393,13 +410,14 @@
   "C-j" 'ivy-next-line
   "C-k" 'ivy-previous-line)
 
+(require 'org)
 (setq org-startup-folded t)
 (setq org-startup-with-inline-images t)
 (setq org-startup-with-latex-preview t)
 (setq org-hide-block-startup t)
 
 (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
-(setq org-agenda-prefix-format '((agenda . " %i %-10T%?-10t%-15s")
+(setq org-agenda-prefix-format '((agenda . " %i %-15T%?-15t%-15s")
                                  (todo . " %i %-12:c")
                                  (tags . " %i %-12:c")
                                  (search . " %i %-12:c")))
@@ -409,17 +427,28 @@
 (setq org-agenda-span 10)
 (setq org-agenda-custom-commands '(("d" "Dashboard"
                                     ((agenda "" ((org-agenda-span 4)
-                                                (org-agenda-start-day "+0d")))
-                                    (todo "NEXT")
-                                    (todo "TODO")))
+                                                 (org-agenda-start-day "+0d")))
+                                     (todo "NEXT")
+                                     (todo "TODO")))
                                    ("f" "Future View"
                                     ((agenda "" ((org-agenda-span 30)
-                                                (org-agenda-start-day "+0d")))))))
+                                                 (org-agenda-start-day "+0d")))))))
 (setq org-agenda-show-future-repeats t)
 
 (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
 (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
-(setq org-use-fast-todo-selection t)
+  (setq org-use-fast-todo-selection t)
+
+(require 'color)
+(set-face-attribute 'org-block nil :background
+                    (color-darken-name
+                     (face-attribute 'default :background) 3))
+(set-face-attribute 'org-block-begin-line nil :foreground
+                    (color-lighten-name
+                     (face-attribute 'default :background) 20))
+(set-face-attribute 'org-code nil :background
+                    (color-darken-name
+                     (face-attribute 'default :background) 3))
 
 (setq org-return-follows-link t)
 (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
@@ -435,7 +464,6 @@
 (setq org-image-actual-width '(400))
 (setq org-confirm-babel-evaluate nil)
 (setq org-export-babel-evaluate nil)
-
 (setq org-babel-default-header-args:sage '((:session . t)
                                            (:results . "output")))
 (setq sage-shell:check-ipython-version-on-startup nil)
@@ -537,7 +565,7 @@
                                         ("m" "moment" entry "* %<%I:%M %p> %?"
                                          :target (file+head "%<%Y-%m-%d>.org" "#+TITLE: %<%Y-%m-%d>\n")
                                          :unnarrowed t)))
-  (org-roam-file-exclude-regexp "\\(inbox.org\\)\\|\\(work.org\\)\\|\\(daily/\\)\\|\\(mistakes.org\\)")
+  (org-roam-file-exclude-regexp "\\(inbox.org\\)\\|\\(work.org\\)\\|\\(daily/\\)\\|\\(mistakes.org\\)|\\(drill.org\\)")
   :config
   (require 'org-roam-dailies)
   (org-roam-db-autosync-mode))
@@ -658,7 +686,7 @@
 (use-package yasnippet
   :config (yas-global-mode 1))
 
-(use-package magit)
+;; (use-package magit)
 
 (use-package helpful)
 
@@ -676,3 +704,9 @@
   :custom
   (deft-directory (expand-file-name "~/.emacs.d/org/"))
   (deft-recursive t ))
+
+(use-package visual-fill-column
+  :custom
+  (fill-column 90)
+  :config
+  (setq-default visual-fill-column-center-text t))
