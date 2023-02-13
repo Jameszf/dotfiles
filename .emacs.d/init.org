@@ -34,12 +34,9 @@
   + hydra/transient/hercules
   + consult-jump-project
   + embark
-  + projectile
   + treemacs
-  + deft/deft-mode
   + evil-multiedit
   + moldable-emacs.
-  + project.el
   + perspective.el
   + treesitter
   + eglot
@@ -56,34 +53,37 @@
 * Base
 ** Globals
 #+begin_src emacs-lisp
+
   (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
   (setq debug-on-error t)
   (setq evil-want-integration t)
   (setq evil-want-keybinding nil)
+  (setq use-dialog-box nil)
+
 #+end_src
 ** Hooks
 #+begin_src emacs-lisp
+
     (add-hook 'python-mode-hook
-              (lambda ()
-                (setq indent-tabs-mode nil)
-                (setq tab-width 4)
-                (setq python-indent-offset 4)))
+                (lambda ()
+                  (setq indent-tabs-mode nil)
+                  (setq tab-width 4)
+                  (setq python-indent-offset 4)))
 
-    (add-hook 'c++-mode-hook
-              (lambda ()
-                (setq indent-tabs-mode nil)
-                (setq tab-width 4)))
+      (add-hook 'c++-mode-hook
+                (lambda ()
+                  (setq indent-tabs-mode nil)
+                  (setq tab-width 4)))
 
-    (add-hook 'prog-mode-hook
-              (lambda ()
-                (display-line-numbers-mode 1)
-                (visual-fill-column-mode -1)))
+      (add-hook 'prog-mode-hook
+                (lambda ()
+                  (display-line-numbers-mode 1)))
 
-    (add-hook 'text-mode-hook
-              (lambda ()
-                (visual-fill-column-mode 1)
-                (display-line-numbers-mode -1)))
-      ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
+      (add-hook 'text-mode-hook
+                (lambda ()
+                  (visual-fill-column-mode 1)))
+        ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
+
 #+end_src
 ** UI
 #+begin_src emacs-lisp
@@ -111,18 +111,54 @@
 #+end_src
 ** Global Minor Modes
 #+begin_src emacs-lisp
+
   (global-visual-line-mode 1)
-  (global-display-line-numbers-mode t)
-  (column-number-mode 1)
-  (setq org-startup-indented t)
+  (save-place-mode 1)
+  (global-auto-revert-mode 1)
+
 #+end_src
+
+*Display-Line-Numbers-Mode*
+Displays line numbers in the left margin of buffers. I only enable these in programming major modes and they are disabled in text major modes.
+#+begin_src emacs-lisp
+
+  (add-hook 'prog-mode-hook
+            (lambda() (display-line-numbers-mode 'visual)))
+  (add-hook 'text-mode-hook
+            (lambda () (display-line-numbers-mode -1)))
+
+#+end_src
+
+*Recentf-Mode*
+Keeps track of recently visited files across sessions and allows fast jumps to them through their dispatcher which can be invoked with ~recentf-open-files~.
+#+begin_src emacs-lisp
+
+  (recentf-mode 1)
+  (setq recentf-max-menu-items 12)
+  (setq recentf-max-saved-items 12)
+
+#+end_src
+
+*Diminish*
+A MELPA package that hides enabled minor modes in the mode line. This is to keep the mode-line uncluttered with usually active, unimportant, minor modes. Diminish is integrated into ~use-package~ with the ~:diminish~ keyword.
+#+begin_src emacs-lisp
+  (require 'use-package)
+
+  (use-package diminish
+    :config
+    (diminish 'visual-line-mode))
+
+#+end_src
+
 ** Backup and Autosave
 #+begin_src emacs-lisp
+
   (setq backup-directory-alist
         `(("." . ,(expand-file-name "~/.emacs.d/backups"))))
   (setq auto-save-file-name-transforms
         `((".*" "~/.emacs.d/.saves/" t)))
   (message "Base loaded in...")
+
 #+end_src
 
 * Package Management
@@ -148,11 +184,6 @@ Ensure use-package is installed and set ":ensure t" is default.
 
   (require 'use-package)
   (setq use-package-always-ensure t)
-#+end_src
-*** Diminish
-Adds :diminish keyword to use-package. When used, makes the package's minor modes "diminished modes" which do not appear in the mode line.
-#+begin_src emacs-lisp
-  (use-package diminish)
 #+end_src
 ** Auto Updating
 Automatically (delete old versions) updates packages upon startup with auto-package-update package.
@@ -595,6 +626,8 @@ Startup Properties.
 #+begin_src emacs-lisp 
 
   (require 'org)
+  (org-indent-mode 1)
+  (diminish 'org-indent-mode)
   (setq org-startup-folded t)
   (setq org-startup-with-inline-images t)
   (setq org-startup-with-latex-preview t)
@@ -892,15 +925,19 @@ UI
 #+end_src
 ** Evil Collection
 #+begin_src emacs-lisp
-  (use-package evil-collection
-    :after evil
-    :custom
-    (evil-collection-calendar-want-org-bindings t)
-    :config
-    (evil-collection-init)
-    (evil-collection-calendar-setup))
 
-  (message "Evil loaded in...")
+    (use-package evil-collection
+      :after evil
+      :diminish
+      :custom
+      (evil-collection-calendar-want-org-bindings t)
+      :config
+      (evil-collection-init)
+      (evil-collection-calendar-setup)
+      (diminish 'evil-collection-unimpaired-mode))
+
+    (message "Evil loaded in...")
+
 #+end_src
 ** Evil Easymotion
 evil-easymotion is not on ELPA or MELPA.

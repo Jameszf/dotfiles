@@ -2,28 +2,27 @@
 (setq debug-on-error t)
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
+(setq use-dialog-box nil)
 
 (add-hook 'python-mode-hook
-          (lambda ()
-            (setq indent-tabs-mode nil)
-            (setq tab-width 4)
-            (setq python-indent-offset 4)))
+            (lambda ()
+              (setq indent-tabs-mode nil)
+              (setq tab-width 4)
+              (setq python-indent-offset 4)))
 
-(add-hook 'c++-mode-hook
-          (lambda ()
-            (setq indent-tabs-mode nil)
-            (setq tab-width 4)))
+  (add-hook 'c++-mode-hook
+            (lambda ()
+              (setq indent-tabs-mode nil)
+              (setq tab-width 4)))
 
-(add-hook 'prog-mode-hook
-          (lambda ()
-            (display-line-numbers-mode 1)
-            (visual-fill-column-mode -1)))
+  (add-hook 'prog-mode-hook
+            (lambda ()
+              (display-line-numbers-mode 1)))
 
-(add-hook 'text-mode-hook
-          (lambda ()
-            (visual-fill-column-mode 1)
-            (display-line-numbers-mode -1)))
-  ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
+  (add-hook 'text-mode-hook
+            (lambda ()
+              (visual-fill-column-mode 1)))
+    ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
 
 ;; Disable mouse-centric menus.
 (setq initial-scratch-message "")
@@ -46,9 +45,23 @@
 (set-frame-font "Office Code Pro 12" nil t)
 
 (global-visual-line-mode 1)
-(global-display-line-numbers-mode t)
-(column-number-mode 1)
-(setq org-startup-indented t)
+(save-place-mode 1)
+(global-auto-revert-mode 1)
+
+(add-hook 'prog-mode-hook
+          (lambda() (display-line-numbers-mode 'visual)))
+(add-hook 'text-mode-hook
+          (lambda () (display-line-numbers-mode -1)))
+
+(recentf-mode 1)
+(setq recentf-max-menu-items 12)
+(setq recentf-max-saved-items 12)
+
+(require 'use-package)
+
+(use-package diminish
+  :config
+  (diminish 'visual-line-mode))
 
 (setq backup-directory-alist
       `(("." . ,(expand-file-name "~/.emacs.d/backups"))))
@@ -72,8 +85,6 @@
 
 (require 'use-package)
 (setq use-package-always-ensure t)
-
-(use-package diminish)
 
 (use-package auto-package-update
   :config
@@ -411,6 +422,8 @@
   "C-k" 'ivy-previous-line)
 
 (require 'org)
+(org-indent-mode 1)
+(diminish 'org-indent-mode)
 (setq org-startup-folded t)
 (setq org-startup-with-inline-images t)
 (setq org-startup-with-latex-preview t)
@@ -639,11 +652,13 @@
 
 (use-package evil-collection
   :after evil
+  :diminish
   :custom
   (evil-collection-calendar-want-org-bindings t)
   :config
   (evil-collection-init)
-  (evil-collection-calendar-setup))
+  (evil-collection-calendar-setup)
+  (diminish 'evil-collection-unimpaired-mode))
 
 (message "Evil loaded in...")
 
