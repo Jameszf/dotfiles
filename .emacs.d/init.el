@@ -289,7 +289,9 @@
 "f" '(:ignore t :which-key "Files")
 "f f" '(find-file :which-key "Find File")
 "f c" '(open-common-file :which-key "Common Files")
-"f d" '(dired :which-key "Dired"))
+"f d" '(dired :which-key "Dired")
+"f r" '(recentf-open-files :which-key "Recent")
+"f s" '(save-buffer :which-key "Save Buffer"))
 
 (my-leader-def
   "h" '(:ignore t :which-key "Help")
@@ -338,14 +340,15 @@
 
 (my-leader-def
   "p" '(:ignore t :which-key "Project")
-  "p f" '(project-find-file :which-key "Find file")
+  "p f" '(project-find-file :which-key "Find File")
   "p e" '(project-eshell :which-key "Eshell")
   "p q" '(project-query-replace-regexp :which-key "Replace w/ Regex")
   "p c" '(project-compile :which-key "Compile")
   "p k" '(project-kill-buffers :which-key "Kill Buffers")
   "p s" '(project-shell-command :which-key "Shell Command")
   "p p" '(project-switch-project :which-key "Switch Project")
-  "p b" '(project-switch-to-buffer :which-key "Switch Buffer"))
+  "p b" '(project-switch-to-buffer :which-key "Switch Buffer")
+  "p r" '(project-find-regexp :which-key "Regex Search"))
 
 (my-leader-def
   "m" '(:ignore t :which-key "Magit")
