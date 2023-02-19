@@ -5,24 +5,28 @@
 (setq use-dialog-box nil)
 
 (add-hook 'python-mode-hook
-            (lambda ()
-              (setq indent-tabs-mode nil)
-              (setq tab-width 4)
-              (setq python-indent-offset 4)))
+	  (lambda ()
+	    (setq indent-tabs-mode nil)
+	    (setq tab-width 4)
+	    (setq python-indent-offset 4)))
 
-  (add-hook 'c++-mode-hook
-            (lambda ()
-              (setq indent-tabs-mode nil)
-              (setq tab-width 4)))
+(add-hook 'c++-mode-hook
+	  (lambda ()
+	    (setq indent-tabs-mode nil)
+	    (setq tab-width 4)))
 
-  (add-hook 'prog-mode-hook
-            (lambda ()
-              (display-line-numbers-mode 1)))
+(add-hook 'prog-mode-hook
+	  (lambda ()
+	    (display-line-numbers-mode 1)))
 
-  (add-hook 'text-mode-hook
-            (lambda ()
-              (visual-fill-column-mode 1)))
-    ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
+(add-hook 'text-mode-hook
+	  (lambda ()
+	    (visual-fill-column-mode 1)))
+
+(add-hook 'emacs-startup-hook
+	  (lambda ()
+	    (message "Hello Startup Hook Activated")))
+;; (add-hook 'prog-mode-hook 'electric-pair-mode)
 
 ;; Disable mouse-centric menus.
 (setq initial-scratch-message "")
@@ -420,9 +424,9 @@
  "C-d" 'ivy-switch-buffer-kill)
 
 (general-define-key
-  :keymaps 'ivy-minibuffer-map
-  "C-j" 'ivy-next-line
-  "C-k" 'ivy-previous-line)
+ :keymaps 'ivy-minibuffer-map
+ "M-j" 'ivy-next-line
+ "M-k" 'ivy-previous-line)
 
 (require 'org)
 (org-indent-mode 1)
@@ -457,14 +461,14 @@
 
 (require 'color)
 (set-face-attribute 'org-block nil :background
-                    (color-darken-name
-                     (face-attribute 'default :background) 3))
+		    (color-darken-name
+		     (face-attribute 'default :background) 3))
 (set-face-attribute 'org-block-begin-line nil :foreground
-                    (color-lighten-name
-                     (face-attribute 'default :background) 20))
+		    (color-lighten-name
+		     (face-attribute 'default :background) 20))
 (set-face-attribute 'org-code nil :background
-                    (color-darken-name
-                     (face-attribute 'default :background) 3))
+		    (color-darken-name
+		     (face-attribute 'default :background) 3))
 
 (setq org-return-follows-link t)
 (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
