@@ -1,25 +1,6 @@
 #+TITLE:My Emacs Config
 #+PROPERTY: header-args :tangle ./init.el
 #+STARTUP: hideblocks
-* TODOS
- + magit + version control config file and org roam.
- + Enable global flycheck and add syntax checkers.
- + Book notes and Mistakes archive.
- + Org-ref/org-cite/some way to cite material.
- + lsp-mode + shell emulator.
- + More packages:  + Investigate org-tags and think more about org-roam structure and use.
- + Enable and configure company
- + Make programming helper commands:
-   + Create tmp file.
-   + Compile and run c++ file
-   + Get a random codeforces problem within a certain rating range and generate code template with custom compile and run command that tests with sample cases.
-   + Run python file.
- + Mobile app to view org files.
- + Elfeed config.
- + Create minor mode for personal Info keybinds.
- + Incorporate hydra into keybinds.
- + Modify CP Problem capture template to allow selection of "TODO" or "SOLVED" keywords.
- + [[https://www.lucacambiaghi.com/vanilla-emacs/readme.html#h:24A7FE78-E6B9-4C81-A2BE-6A049A8209AD][Luca's Config]]
 * Packages to investigate
   + evil-join
   + default-indent-new-line
@@ -52,6 +33,69 @@
  + org-capture "rw" template doesn't link to the correct task if the heading is non-unique.
  + pasting from register in minibuffer (what is a register? How does copying and pasting work?).
  + Alignment in org tables with chinese characters.
+* Package Management
+** Straight
+~straight.el~ is a package manager available on Windows and Linux which handles Emacs packages in a more precise way. It can download, compile, and load exact versions of packages hosted on github (down to the specific commit).For this, ~straight.el~ uses a lock file (createable with ~straight-freeze-versions~) to keep track of these. The order packages are loaded in is important. ~straight.el~ will try to download the most recent version, along with its dependencies, which sometimes leads to version mismatches (e.g. ~org~).
+
+Some variables impact setup and must be set before the package is loaded in. ~straight.el~ is compatible with ~use-package~.
+#+begin_src emacs-lisp
+
+  (setq straight-use-package-by-default t)
+
+#+end_src
+
+The below code is taken from [[https://github.com/radian-software/straight.el#getting-started][the official docs]] on how to setup straight. It is better to not use both ~straight.el~ and ~package.el~ to prevent odd bugs. So, there is also some additional code in ~early-init.el~ for ~Emacs>=27~ to prevent ~package.el~ from loading packages on startup.
+#+begin_src emacs-lisp :tangle early-init.el
+
+  (setq package-enable-at-startup nil)
+
+#+end_src
+
+#+begin_src emacs-lisp
+
+  (defvar bootstrap-version)
+  (let ((bootstrap-file
+	 (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+	(bootstrap-version 6))
+    (unless (file-exists-p bootstrap-file)
+      (with-current-buffer
+	  (url-retrieve-synchronously "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	   'silent 'inhibit-cookies)
+	(goto-char (point-max))
+	(eval-print-last-sexp)))
+    (load bootstrap-file nil 'nomessage))
+
+#+end_src
+
+** Built-ins
+Emacs comes with packages that are generally always out-of-date no matter how new the version. To prevent version mismatches, you must load them in with ~straight.el~ before third-party packages declare them in their dependancies.
+#+begin_src emacs-lisp
+
+  (straight-use-package '(org :type built-in))
+  (straight-use-package '(xrefs :type built-in))
+
+#+end_src
+
+** Use-Package and Diminish
+~use-package~ provides useful macros for installing and configuring packages. Important keywords are ~:init~, ~:config~, and ~:custom~.
+ + ~:init~ executes code before the package is loaded in.
+ + ~:config~ executes code after the package is loaded in.
+ + ~:custom~ allows customization of package variables.
+
+#+begin_src emacs-lisp
+
+  (straight-use-package 'use-package)
+
+#+end_src
+
+*Diminish*
+A MELPA package that hides enabled minor modes in the mode line. This is to keep the mode-line uncluttered with usually active, unimportant, minor modes. Diminish is integrated into ~use-package~ with ~:diminish~.
+#+begin_src emacs-lisp
+
+  (straight-use-package 'diminish)
+
+#+end_src
+
 * Base
 ** Globals
 #+begin_src emacs-lisp
@@ -145,17 +189,6 @@ Keeps track of recently visited files across sessions and allows fast jumps to t
 
 #+end_src
 
-*Diminish*
-A MELPA package that hides enabled minor modes in the mode line. This is to keep the mode-line uncluttered with usually active, unimportant, minor modes. Diminish is integrated into ~use-package~ with the ~:diminish~ keyword.
-#+begin_src emacs-lisp
-  (require 'use-package)
-
-  (use-package diminish
-    :config
-    (diminish 'visual-line-mode))
-
-#+end_src
-
 ** Backup and Autosave
 #+begin_src emacs-lisp
 
@@ -167,39 +200,6 @@ A MELPA package that hides enabled minor modes in the mode line. This is to keep
 
 #+end_src
 
-* Package Management
-** Archives
-Initial "package" package and add popular package archives.
-#+begin_src emacs-lisp
-  (require 'package)
-
-  (add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-  (add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-  (add-to-list 'package-archives '("elpa" . "https://elpa.gnu.org/packages/") t)
-
-  ;; Update list of packages and allow download of them.
-  (package-initialize)
-  (unless package-archive-contents
-    (package-refresh-contents))
-#+end_src
-** Use-package
-Ensure use-package is installed and set ":ensure t" is default.
-#+begin_src emacs-lisp
-  (unless (package-installed-p 'use-package)
-    (package-install 'use-package))
-
-  (require 'use-package)
-  (setq use-package-always-ensure t)
-#+end_src
-** Auto Updating
-Automatically (delete old versions) updates packages upon startup with auto-package-update package.
-#+begin_src emacs-lisp
-  (use-package auto-package-update
-    :config
-    (setq auto-package-update-delete-old-versions t)
-    (setq auto-package-update-hide-results t)
-    (auto-package-update-maybe))
-#+end_src
 * Personal Code
 Code for my common-files command. This command allows easy opening of files (in `common-files`) I visit often. 
 #+begin_src emacs-lisp
@@ -877,7 +877,7 @@ UI
     (add-hook 'evil-insert-state-exit-hook #'org-appear-manual-stop))
 
   (use-package org-appear
-    :after org
+    :requires (org)
     :custom
     (org-appear-trigger 'manual))
     ;; :hook
@@ -925,26 +925,27 @@ UI
 ** Ox-Hugo
 #+begin_src emacs-lisp
   (use-package ox-hugo
-    :pin melpa
-    :after ox)
+    :requires (ox))
 #+end_src
 
 * Evil
 #+begin_src emacs-lisp
+
   (use-package evil
-    :demand t
     :diminish
     :custom
     (evil-want-C-i-jump nil)
     (evil-respect-visual-line-mode t)
     :config
     (evil-mode 1))
+
 #+end_src
+
 ** Evil Collection
 #+begin_src emacs-lisp
 
     (use-package evil-collection
-      :after evil
+      :requires (evil)
       :diminish
       :custom
       (evil-collection-calendar-want-org-bindings t)
@@ -960,37 +961,43 @@ UI
 evil-easymotion is not on ELPA or MELPA.
 * Ivy and Counsel
 #+begin_src emacs-lisp
+
   (use-package ivy
     :diminish
     :config
     (ivy-mode 1))
 
+  (use-package counsel)
+
   (use-package ivy-rich
+    :requires (counsel)
     :init
     (ivy-rich-mode 1))
 
-  (use-package counsel)
-
-  (message "Ivy and Counsel loaded in...")
 #+end_src
 * Extra Programming Packages
 ** Language Modes
 Sage-shell-mode
 #+begin_src emacs-lisp
+
   (use-package sage-shell-mode
     :diminish t)
+
 #+end_src
 
 Ob-sagemath. For compatiability with Org-babel code blocks.
 #+begin_src emacs-lisp
+
   (use-package ob-sagemath
-    :after sage-shell-mode
-    :demand t)
+    :requires (sage-shell-mode))
+
 #+end_src
 
 Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 #+begin_src emacs-lisp
+
   (use-package haskell-mode)
+
 #+end_src
 
 ** Rainbow-delimiters
@@ -1026,46 +1033,59 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 
 ** Magit
 #+begin_src emacs-lisp
-;; (use-package magit)
+
+  (use-package magit)
+
 #+end_src
 
 * Misc
 ** Helpful
-
 #+begin_src emacs-lisp
+
   (use-package helpful)
+
 #+end_src
+
 ** Restart-emacs
 #+begin_src emacs-lisp
-(use-package restart-emacs)
+
+  (use-package restart-emacs)
+
 #+end_src
 
 ** Elfeed
 #+begin_src emacs-lisp
-    (use-package elfeed
-      :diminish)
+  (use-package elfeed
+    :diminish)
 #+end_src
+
 *** Elfeed-org
 #+begin_src emacs-lisp
+
   (use-package elfeed-org
     :custom (rmh-elfeed-org-files (list (expand-file-name "~/.emacs.d/elfeed.org")))
     :config
     (elfeed-org))
+
 #+end_src
 
 ** Deft
 #+begin_src emacs-lisp
+
   (use-package deft
     :custom
     (deft-directory (expand-file-name "~/.emacs.d/org/"))
     (deft-recursive t ))
+
 #+end_src
 
 ** Visual-fill-column
 #+begin_src emacs-lisp
+
   (use-package visual-fill-column
     :custom
     (fill-column 90)
     :config
     (setq-default visual-fill-column-center-text t))
+
 #+end_src

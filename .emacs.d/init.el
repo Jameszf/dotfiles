@@ -1,3 +1,24 @@
+(setq straight-use-package-by-default t)
+
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+	(url-retrieve-synchronously "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(straight-use-package '(org :type built-in))
+(straight-use-package '(xrefs :type built-in))
+
+(straight-use-package 'use-package)
+
+(straight-use-package 'diminish)
+
 (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
 (setq debug-on-error t)
 (setq evil-want-integration t)
@@ -61,40 +82,11 @@
 (setq recentf-max-menu-items 12)
 (setq recentf-max-saved-items 12)
 
-(require 'use-package)
-
-(use-package diminish
-  :config
-  (diminish 'visual-line-mode))
-
 (setq backup-directory-alist
       `(("." . ,(expand-file-name "~/.emacs.d/backups"))))
 (setq auto-save-file-name-transforms
       `((".*" "~/.emacs.d/.saves/" t)))
 (message "Base loaded in...")
-
-(require 'package)
-
-(add-to-list 'package-archives '("melpa" . "https://melpa.org/packages/") t)
-(add-to-list 'package-archives '("melpa-stable" . "https://stable.melpa.org/packages/") t)
-(add-to-list 'package-archives '("elpa" . "https://elpa.gnu.org/packages/") t)
-
-;; Update list of packages and allow download of them.
-(package-initialize)
-(unless package-archive-contents
-  (package-refresh-contents))
-
-(unless (package-installed-p 'use-package)
-  (package-install 'use-package))
-
-(require 'use-package)
-(setq use-package-always-ensure t)
-
-(use-package auto-package-update
-  :config
-  (setq auto-package-update-delete-old-versions t)
-  (setq auto-package-update-hide-results t)
-  (auto-package-update-maybe))
 
 (defvar common-files '() "List of common files for common-files command.")
 
@@ -605,7 +597,7 @@
   (add-hook 'evil-insert-state-exit-hook #'org-appear-manual-stop))
 
 (use-package org-appear
-  :after org
+  :requires (org)
   :custom
   (org-appear-trigger 'manual))
   ;; :hook
@@ -645,11 +637,9 @@
   (org-drill-maximum-items-per-session nil))
 
 (use-package ox-hugo
-  :pin melpa
-  :after ox)
+  :requires (ox))
 
 (use-package evil
-  :demand t
   :diminish
   :custom
   (evil-want-C-i-jump nil)
@@ -658,7 +648,7 @@
   (evil-mode 1))
 
 (use-package evil-collection
-  :after evil
+  :requires (evil)
   :diminish
   :custom
   (evil-collection-calendar-want-org-bindings t)
@@ -674,20 +664,18 @@
   :config
   (ivy-mode 1))
 
-(use-package ivy-rich
-  :init
-  (ivy-rich-mode 1))
-
 (use-package counsel)
 
-(message "Ivy and Counsel loaded in...")
+(use-package ivy-rich
+  :requires (counsel)
+  :init
+  (ivy-rich-mode 1))
 
 (use-package sage-shell-mode
   :diminish t)
 
 (use-package ob-sagemath
-  :after sage-shell-mode
-  :demand t)
+  :requires (sage-shell-mode))
 
 (use-package haskell-mode)
 
@@ -708,7 +696,7 @@
 (use-package yasnippet
   :config (yas-global-mode 1))
 
-;; (use-package magit)
+(use-package magit)
 
 (use-package helpful)
 
