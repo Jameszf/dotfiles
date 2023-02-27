@@ -95,17 +95,19 @@
     (add-to-list 'common-files `(,(format "[%s] %s" (upcase name) cfpath) . ,cfpath))))
 
 (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
-			     "~/.emacs.d/org/roam/reflections.org"
-			     "~/.emacs.d/org/roam/bibliography.org"
-			     "~/.emacs.d/org/agenda/gtd.org"
-			     "~/.emacs.d/org/roam/mistakes.org"
-			     "~/.emacs.d/init.el"
-			     "~/.emacs.d/org/roam/bookmarks.org"
-			     "~/.emacs.d/org/roam/problems.org"
-			     "~/.emacs.d/org/roam/work.org"
-			     "~/.emacs.d/org/roam/food.org"
-			     "~/.emacs.d/org/roam/code.org"
-			     "~/.emacs.d/org/roam/drill.org")))
+                             "~/.emacs.d/org/roam/reflections.org"
+                             "~/.emacs.d/org/roam/bibliography.org"
+                             "~/.emacs.d/org/agenda/inbox.org"
+                             "~/.emacs.d/org/roam/mistakes.org"
+                             "~/.emacs.d/init.el"
+                             "~/.emacs.d/org/roam/bookmarks.org"
+                             "~/.emacs.d/org/roam/problems.org"
+                             "~/.emacs.d/org/roam/work.org"
+                             "~/.emacs.d/org/roam/food.org"
+                             "~/.emacs.d/org/roam/code.org"
+                             "~/.emacs.d/org/roam/drill.org"
+                             "~/.emacs.d/org/agenda/habits.org"
+                             "~/.emacs.d/org/agenda/school.org")))
   (mapcar 'add-common-file common-files-to-add))
 
 (defun restart-emacs-debug-mode ()
@@ -235,7 +237,8 @@
   "o r" '(org-redisplay-inline-images :which-key "Redisplay Inline Images")
   "o t" '(org-todo :which-key "Toggle Todo")
   "o s" '(org-store-link :which-key "Store Org Link")
-  "o q" '(org-set-tags-command :which-key "Set Tags"))
+  "o q" '(org-set-tags-command :which-key "Set Tags")
+  "o x" '(org-export-dispatch :which-key "Export"))
 
 (my-leader-def
   "o k" '(:ignore t :which-key "Clock")
@@ -251,7 +254,8 @@
     "o a" '(:ignore t :which-key "Archive")
     "o a e" '(org-archive-subtree-default :which-key "Entry")
     "o a s" '(org-archive-subtree :which-key "Subtree")
-    "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select"))
+    "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select")
+    "o a i" '(org-toggle-archive-tag :which-key "Internal"))
 
 (my-leader-def
  "r l" 'org-roam-buffer-toggle
@@ -364,7 +368,7 @@
 
 (my-leader-def
   "c" '(:ignore t :which-key "Commands")
-  "c r" '(replace-string :which-key "Replace")
+  "c r" '(replace-regexp :which-key "Replace")
   "c e" '(eshell :which-key "Eshell")
   "c t" '(term :which-key "Term"))
 
@@ -411,9 +415,8 @@
 
 (general-define-key
  :keymaps 'ivy-switch-buffer-map
- "C-k" 'ivy-previous-line
- "C-l" 'ivy-done
- "C-d" 'ivy-switch-buffer-kill)
+ "M-l" 'ivy-done
+ "M-d" 'ivy-switch-buffer-kill)
 
 (general-define-key
  :keymaps 'ivy-minibuffer-map
@@ -421,6 +424,7 @@
  "M-k" 'ivy-previous-line)
 
 (require 'org)
+(add-to-list 'org-modules 'org-habit)
 (org-indent-mode 1)
 (diminish 'org-indent-mode)
 (setq org-startup-folded t)
@@ -429,23 +433,23 @@
 (setq org-hide-block-startup t)
 
 (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
-(setq org-agenda-prefix-format '((agenda . " %i %-15T%?-15t%-15s")
-                                 (todo . " %i %-12:c")
-                                 (tags . " %i %-12:c")
-                                 (search . " %i %-12:c")))
-(setq org-agenda-remove-tags t)
+(setq org-agenda-file-regexp "\\`[^.].*\\.org\\")
 (setq org-agenda-start-on-weekday nil)
 (setq org-agenda-start-day "-2d")
 (setq org-agenda-span 10)
-(setq org-agenda-custom-commands '(("d" "Dashboard"
-                                    ((agenda "" ((org-agenda-span 4)
-                                                 (org-agenda-start-day "+0d")))
-                                     (todo "NEXT")
-                                     (todo "TODO")))
-                                   ("f" "Future View"
-                                    ((agenda "" ((org-agenda-span 30)
-                                                 (org-agenda-start-day "+0d")))))))
 (setq org-agenda-show-future-repeats t)
+(setq org-agenda-entry-text-maxlines 3)
+(setq org-habit-show-habits-only-for-today t)
+(setq org-agenda-custom-commands '(("d" "Dashboard"
+				    ((agenda "" ((org-agenda-start-day "+0d")
+						 (org-agenda-span 5)
+						 (org-agenda-start-with-entry-text-mode t)))))
+				   ("r" "Report"
+				    ((agenda "" ((org-agenda-start-day "-21d")
+						 (org-agenda-span 21)
+						 (org-agenda-start-with-log-mode t)
+						 (org-agenda-start-with-clockreport-mode t)
+						 (org-agenda-skip-archived-trees nil)))))))
 
 (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
 (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
@@ -717,6 +721,6 @@
 
 (use-package visual-fill-column
   :custom
-  (fill-column 90)
+  (fill-column 100)
   :config
   (setq-default visual-fill-column-center-text t))
