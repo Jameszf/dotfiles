@@ -221,6 +221,12 @@
   (which-key-mode))
 
 (general-define-key "<escape>" 'keyboard-escape-quit)
+(general-define-key
+ :states 'normal
+ "q" nil)
+(general-define-key
+ :states 'normal
+ "m" 'evil-record-macro)
 
 (general-create-definer my-leader-def
   :keymaps '(normal visual emacs)
@@ -439,7 +445,6 @@
 (setq org-hide-block-startup t)
 
 (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
-(setq org-agenda-file-regexp "\\`[^.].*\\.org\\")
 (setq org-agenda-start-on-weekday nil)
 (setq org-agenda-start-day "-2d")
 (setq org-agenda-span 10)

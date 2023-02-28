@@ -342,14 +342,17 @@ General is a comprehensive keybinding management package (analoguous to use-pack
 
 Key-Chord supports keybinding to quickly pressed key pairs. I only use this for "fd/df" evil escape sequence.
 #+begin_src emacs-lisp
+
   (use-package key-chord
     :diminish
     :config
     (key-chord-mode 1))
+
 #+end_src
 
 Which-key adds a help window that shows available keybinds for given prefixes.
 #+begin_src emacs-lisp
+
   (use-package which-key
     :diminish
     :custom
@@ -359,11 +362,20 @@ Which-key adds a help window that shows available keybinds for given prefixes.
     (which-key-idle-secondary-delay 0.05)
     :config
     (which-key-mode))
+
 #+end_src
 ** Base
 Sets the escape key to behave similar to C-g in native emacs. This is for ergonomic reasons.
 #+begin_src emacs-lisp
+
   (general-define-key "<escape>" 'keyboard-escape-quit)
+  (general-define-key
+   :states 'normal
+   "q" nil)
+  (general-define-key
+   :states 'normal
+   "m" 'evil-record-macro)
+
 #+end_src
 ** SPC
 All keybindings with a SPC prefix, this is inspired by Spacemacs system.
@@ -671,7 +683,6 @@ Agenda Variables
 #+begin_src emacs-lisp
 
   (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
-  (setq org-agenda-file-regexp "\\`[^.].*\\.org\\")
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-start-day "-2d")
   (setq org-agenda-span 10)
