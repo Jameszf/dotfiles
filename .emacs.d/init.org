@@ -581,6 +581,16 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "s i" '(insert-screenshot :which-key "Insert Screenshot"))
 #+end_src
 
+*** Yasnippet
+#+begin_src emacs-lisp
+
+  (my-leader-def
+    "y i" '(yas-insert-snippet :which-key "Insert")
+    "y n" '(yas-new-snippet :which-key "New")
+    "y t" '(yas-describe-tables :which-key "Describe Tables")
+    "y r" '(yas-reload-all :which-key "Reload all"))
+
+#+end_src
 ** Modes
 *** Org-Agenda
 #+begin_src emacs-lisp

@@ -377,6 +377,12 @@
   "s m" '(move-and-insert-screenshot :which-key "Move+Insert Screenshoot")
   "s i" '(insert-screenshot :which-key "Insert Screenshot"))
 
+(my-leader-def
+  "y i" '(yas-insert-snippet :which-key "Insert")
+  "y n" '(yas-new-snippet :which-key "New")
+  "y t" '(yas-describe-tables :which-key "Describe Tables")
+  "y r" '(yas-reload-all :which-key "Reload all"))
+
 (general-define-key
  :keymaps 'org-agenda-mode-map
  "j" 'org-agenda-next-line
