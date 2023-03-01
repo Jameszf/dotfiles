@@ -9,6 +9,9 @@
 !.emacs.d/elfeed.org
 !.emacs.d/snippets/
 !.emacs.d/snippets/**
+!.emacs.d/straight/
+!.emacs.d/straight/versions/
+!.emacs.d/straight/versions/default.el
 !README.md
 !.stow-local-ignore
 !.gitconfig
