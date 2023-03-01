@@ -1,0 +1,13 @@
+# -*- mode: snippet -*-
+# name: cmput275-weekly-exercise-file-header.
+# key: 275we
+# --
+
+/*---------------------------------------------------
+Name : James Fu
+SID: 1703560
+CCID : zejia
+AnonID : 1000312916
+CMPUT 275,  Winter 2022
+Weekly Exercise ${1:Number}: ${2:Assignment Name}
+---------------------------------------------------*/

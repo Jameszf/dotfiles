@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: cmput275-function-header
+# key: 275fh
+# --
+
+/*
+  Description: ${1:description}
+  Inputs: $0
+  Output: ${2:output}
+ */
