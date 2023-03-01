@@ -1,0 +1,17 @@
+*
+!.emacs.d/
+!.config/
+!.config/**
+!.bashrc
+!.emacs.d/init.org
+!.emacs.d/init.el
+!.emacs.d/early-init.el
+!.emacs.d/elfeed.org
+!.emacs.d/snippets/
+!.emacs.d/snippets/**
+!README.md
+!.stow-local-ignore
+!.gitconfig
+!.profile	
+!.gitignore
+
