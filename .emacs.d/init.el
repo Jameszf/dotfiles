@@ -672,6 +672,8 @@
 
 (use-package ivy
   :diminish
+  :custom
+  (ivy-use-selectable-prompt t)
   :config
   (ivy-mode 1))
 

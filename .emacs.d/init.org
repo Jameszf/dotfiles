@@ -1018,6 +1018,8 @@ evil-easymotion is not on ELPA or MELPA.
 
   (use-package ivy
     :diminish
+    :custom
+    (ivy-use-selectable-prompt t)
     :config
     (ivy-mode 1))
 
