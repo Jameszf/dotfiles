@@ -118,6 +118,64 @@ Displays line numbers in the left margin of buffers. I only enable these in prog
 
 #+end_src
 
+** Misc Settings
+#+begin_src emacs-lisp
+
+  (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
+  (setq debug-on-error t)
+  (setq use-dialog-box nil)
+
+#+end_src
+
+** Hooks
+#+begin_src emacs-lisp
+
+    (add-hook 'python-mode-hook
+	      (lambda ()
+		(setq indent-tabs-mode nil)
+		(setq tab-width 4)
+		(setq python-indent-offset 4)))
+
+    (add-hook 'c++-mode-hook
+	      (lambda ()
+		(setq indent-tabs-mode nil)
+		(setq tab-width 4)))
+
+    (add-hook 'prog-mode-hook
+	      (lambda ()
+		(display-line-numbers-mode 1)))
+
+    (add-hook 'text-mode-hook
+	      (lambda ()
+		(visual-fill-column-mode 1)))
+
+    (add-hook 'emacs-startup-hook
+	      (lambda ()
+		(message "Hello Startup Hook Activated")))
+    ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
+
+#+end_src
+
+** Backup and Autosave
+Emacs will occassionally backup and autosave files. These files can quickly fill up folders and be cumbersome to deal with. Having designated folders to store them helps me organize my files better.
+#+begin_src emacs-lisp
+
+  ;; backup
+  (setq make-backup-files t)
+  (setq vc-make-backup-files nil)
+  (setq version-control t)
+  (setq delete-old-versions t)
+  (setq kept-new-versions 3)
+  (setq kept-old-versions 1)
+  (setq backup-directory-alist
+	`(("." . ,(expand-file-name "~/.emacs.d/backups"))))
+
+  ;; auto-save
+  (setq auto-save-file-name-transforms
+	`((".*" "~/.emacs.d/.saves/" t)))
+
+#+end_src
+
 * Package Management
 ** Straight
 ~straight.el~ is a package manager available on Windows and Linux which handles Emacs packages in a more precise way. It can download, compile, and load exact versions of packages hosted on github (down to the specific commit).For this, ~straight.el~ uses a lock file (createable with ~straight-freeze-versions~) to keep track of these. The order packages are loaded in is important. ~straight.el~ will try to download the most recent version, along with its dependencies, which sometimes leads to version mismatches (e.g. ~org~).
@@ -177,56 +235,6 @@ A MELPA package that hides enabled minor modes in the mode line. This is to keep
 #+begin_src emacs-lisp
 
   (straight-use-package 'diminish)
-
-#+end_src
-
-* Base
-** Globals
-#+begin_src emacs-lisp
-
-  (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
-  (setq debug-on-error t)
-  (setq evil-want-integration t)
-  (setq evil-want-keybinding nil)
-  (setq use-dialog-box nil)
-
-#+end_src
-** Hooks
-#+begin_src emacs-lisp
-
-    (add-hook 'python-mode-hook
-	      (lambda ()
-		(setq indent-tabs-mode nil)
-		(setq tab-width 4)
-		(setq python-indent-offset 4)))
-
-    (add-hook 'c++-mode-hook
-	      (lambda ()
-		(setq indent-tabs-mode nil)
-		(setq tab-width 4)))
-
-    (add-hook 'prog-mode-hook
-	      (lambda ()
-		(display-line-numbers-mode 1)))
-
-    (add-hook 'text-mode-hook
-	      (lambda ()
-		(visual-fill-column-mode 1)))
-
-    (add-hook 'emacs-startup-hook
-	      (lambda ()
-		(message "Hello Startup Hook Activated")))
-    ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
-
-#+end_src
-
-** Backup and Autosave
-#+begin_src emacs-lisp
-
-  (setq backup-directory-alist
-        `(("." . ,(expand-file-name "~/.emacs.d/backups"))))
-  (setq auto-save-file-name-transforms
-        `((".*" "~/.emacs.d/.saves/" t)))
 
 #+end_src
 
@@ -983,6 +991,9 @@ UI
 
 * Evil
 #+begin_src emacs-lisp
+
+  (setq evil-want-integration t)
+  (setq evil-want-keybinding nil)
 
   (use-package evil
     :diminish

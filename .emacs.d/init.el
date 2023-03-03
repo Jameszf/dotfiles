@@ -26,31 +26,8 @@
 (add-hook 'text-mode-hook
           (lambda () (display-line-numbers-mode -1)))
 
-(setq straight-use-package-by-default t)
-
-(defvar bootstrap-version)
-(let ((bootstrap-file
-       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
-      (bootstrap-version 6))
-  (unless (file-exists-p bootstrap-file)
-    (with-current-buffer
-	(url-retrieve-synchronously "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
-	 'silent 'inhibit-cookies)
-      (goto-char (point-max))
-      (eval-print-last-sexp)))
-  (load bootstrap-file nil 'nomessage))
-
-(straight-use-package '(org :type built-in))
-(straight-use-package '(xrefs :type built-in))
-
-(straight-use-package 'use-package)
-
-(straight-use-package 'diminish)
-
 (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
 (setq debug-on-error t)
-(setq evil-want-integration t)
-(setq evil-want-keybinding nil)
 (setq use-dialog-box nil)
 
 (add-hook 'python-mode-hook
@@ -77,10 +54,40 @@
 	    (message "Hello Startup Hook Activated")))
 ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
 
+;; backup
+(setq make-backup-files t)
+(setq vc-make-backup-files nil)
+(setq version-control t)
+(setq delete-old-versions t)
+(setq kept-new-versions 3)
+(setq kept-old-versions 1)
 (setq backup-directory-alist
       `(("." . ,(expand-file-name "~/.emacs.d/backups"))))
+
+;; auto-save
 (setq auto-save-file-name-transforms
       `((".*" "~/.emacs.d/.saves/" t)))
+
+(setq straight-use-package-by-default t)
+
+(defvar bootstrap-version)
+(let ((bootstrap-file
+       (expand-file-name "straight/repos/straight.el/bootstrap.el" user-emacs-directory))
+      (bootstrap-version 6))
+  (unless (file-exists-p bootstrap-file)
+    (with-current-buffer
+	(url-retrieve-synchronously "https://raw.githubusercontent.com/radian-software/straight.el/develop/install.el"
+	 'silent 'inhibit-cookies)
+      (goto-char (point-max))
+      (eval-print-last-sexp)))
+  (load bootstrap-file nil 'nomessage))
+
+(straight-use-package '(org :type built-in))
+(straight-use-package '(xrefs :type built-in))
+
+(straight-use-package 'use-package)
+
+(straight-use-package 'diminish)
 
 (defvar common-files '() "List of common files for common-files command.")
 
@@ -645,6 +652,9 @@
 
 (use-package ox-hugo
   :requires (ox))
+
+(setq evil-want-integration t)
+(setq evil-want-keybinding nil)
 
 (use-package evil
   :diminish
