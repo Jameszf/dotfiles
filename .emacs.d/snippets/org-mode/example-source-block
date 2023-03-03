@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: example-source-block
+# key: <e
+# --
+#+begin_example
+$0
+#+end_example

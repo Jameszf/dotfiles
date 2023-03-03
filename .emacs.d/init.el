@@ -385,6 +385,7 @@
   "s i" '(insert-screenshot :which-key "Insert Screenshot"))
 
 (my-leader-def
+  "y" '(:ignore t :which-key "Yasnippet")
   "y i" '(yas-insert-snippet :which-key "Insert")
   "y n" '(yas-new-snippet :which-key "New")
   "y t" '(yas-describe-tables :which-key "Describe Tables")
@@ -552,13 +553,6 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
-
-(require 'org-tempo)
-
-(add-to-list 'org-structure-template-alist '("el" . "src emacs-lisp"))
-(add-to-list 'org-structure-template-alist '("sa" . "src sage"))
-(add-to-list 'org-structure-template-alist '("e" . "example"))
-(add-to-list 'org-structure-template-alist '("ha" . "src haskell"))
 
 (use-package org-roam
   :init
