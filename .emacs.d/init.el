@@ -1,3 +1,31 @@
+(setq initial-scratch-message "")
+(setq inhibit-startup-message t)
+(setq inhibit-startup-echo-area-message "jmmkr")
+(tool-bar-mode -1)
+(menu-bar-mode -1)
+(scroll-bar-mode -1)
+
+(set-fringe-mode 0) ;; Bars on the left and right sides of the frame.
+(load-theme 'tango-dark)
+(set-frame-font "Office Code Pro 12" nil t)
+
+(setq visible-bell t)
+
+(recentf-mode 1)
+(setq recentf-max-menu-items 12)
+(setq recentf-max-saved-items 12)
+
+(save-place-mode 1)
+
+(global-visual-line-mode 1)
+
+(global-auto-revert-mode 1)
+
+(add-hook 'prog-mode-hook
+          (lambda() (display-line-numbers-mode 'visual)))
+(add-hook 'text-mode-hook
+          (lambda () (display-line-numbers-mode -1)))
+
 (setq straight-use-package-by-default t)
 
 (defvar bootstrap-version)
@@ -49,44 +77,10 @@
 	    (message "Hello Startup Hook Activated")))
 ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
 
-;; Disable mouse-centric menus.
-(setq initial-scratch-message "")
-(setq inhibit-startup-message t)
-(setq inhibit-startup-echo-area-message "guerry")
-(tool-bar-mode -1)
-(menu-bar-mode -1)
-(scroll-bar-mode -1)
-
-;; Visual alarm bell instead of audio version
-(setq visible-bell t)
-
-;; Fringes (Frame padding?)
-(set-fringe-mode 10)
-
-;; Theme
-(load-theme 'tango-dark)
-
-;; Font(s)
-(set-frame-font "Office Code Pro 12" nil t)
-
-(global-visual-line-mode 1)
-(save-place-mode 1)
-(global-auto-revert-mode 1)
-
-(add-hook 'prog-mode-hook
-          (lambda() (display-line-numbers-mode 'visual)))
-(add-hook 'text-mode-hook
-          (lambda () (display-line-numbers-mode -1)))
-
-(recentf-mode 1)
-(setq recentf-max-menu-items 12)
-(setq recentf-max-saved-items 12)
-
 (setq backup-directory-alist
       `(("." . ,(expand-file-name "~/.emacs.d/backups"))))
 (setq auto-save-file-name-transforms
       `((".*" "~/.emacs.d/.saves/" t)))
-(message "Base loaded in...")
 
 (defvar common-files '() "List of common files for common-files command.")
 
@@ -442,7 +436,7 @@
 (setq org-startup-folded t)
 (setq org-startup-with-inline-images t)
 (setq org-startup-with-latex-preview t)
-(setq org-hide-block-startup t)
+(setq org-hide-block-startup nil)
 
 (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
 (setq org-agenda-start-on-weekday nil)
@@ -518,17 +512,15 @@
 
 (defvar my-oc-templates '())
 (add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
-                                     "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n")
-                                    ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                                    ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                                    ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")
-                                    ("f" "Food" entry (file+headline "~/.emacs.d/org/roam/food.org" "Food Journal") "** [%<%d/%m/%Y>]\n + Breakfast :: %?\n + Lunch :: \n + Dinner :: \n + Misc :: ")))
+				     "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n")
+				    ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
+				    ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
+				    ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")
+				    ("f" "Food" entry (file+headline "~/.emacs.d/org/roam/food.org" "Food Journal") "** [%<%d/%m/%Y>]\n + Breakfast :: %?\n + Lunch :: \n + Dinner :: \n + Misc :: ")))
 
 (add-list-to-var 'my-oc-templates '(("a" "Agenda Items")
-                                    ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
-                                    ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
-                                    ("aa" "Appointment" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Appointments") "** TODO %^{APPOINTMENT}\n%(my-org-schedule)\n%?")
-                                    ("al" "To Learn" item (file+headline "~/.emacs.d/org/agenda/gtd.org" "Things to Learn") "+ %^{CONCEPT} :: %^{DESCRIPTION}." :immediate-finish t)))
+                                    ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/inbox.org" "Box") "+ [ ] %^{TODO}." :immediate-finish t)
+                                    ("al" "To Learn" item (file+headline "~/.emacs.d/org/agenda/inbox.org" "Hmmm... Interesting") "+ %^{CONCEPT} :: %^{DESCRIPTION}." :immediate-finish t)))
 
 (add-list-to-var 'my-oc-templates '(("r" "Reflection templates")
                                    ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
@@ -703,10 +695,6 @@
 (use-package company
   :diminish t
   :hook (prog-mode . company-mode))
-
-(use-package eglot
-  :hook ((c-mode . eglot-ensure)
-         (c++-mode . eglot-ensure)))
 
 (use-package yasnippet
   :config (yas-global-mode 1))

@@ -1,6 +1,7 @@
 #+TITLE:My Emacs Config
 #+PROPERTY: header-args :tangle ./init.el
-#+STARTUP: hideblocks
+Most of my Emacs config is generated using this file. I use literate programming to stay organized (the actual elisp code loaded in by Emacs is in ~init.el~). This is an original configuration that takes inspiration from /Spacemacs/, and /Doomemacs/.
+
 * Packages to investigate
   + evil-join
   + default-indent-new-line
@@ -27,14 +28,96 @@
   + org-sticky-header
   + ace-window
   + treemacs
-
+    
 * Issues
- + Figure out function name scope.
  + Evil org mode header movement.
- + Org-appear triggering outside of org-mode files (probable source: my-org-appear-trigger-function).
+ + Org-appear triggering outside of org-mode files (probable source: ~my-org-appear-trigger-function~).
  + org-capture "rw" template doesn't link to the correct task if the heading is non-unique.
  + pasting from register in minibuffer (what is a register? How does copying and pasting work?).
  + Alignment in org tables with chinese characters.
+
+* Requirements
+Additional software is required for this configuration to work.
+
+* Built-in Configuration
+Here lies configuration of built-in libraries and emacs variables. This is primarily ~org-mode~ configurations as well as some additional minor modes: ~eglot~, ~save-place~, ~recentf~, and more.
+
+** UI
+*Decluttering Emacs*
+#+begin_src emacs-lisp
+
+  (setq initial-scratch-message "")
+  (setq inhibit-startup-message t)
+  (setq inhibit-startup-echo-area-message "jmmkr")
+  (tool-bar-mode -1)
+  (menu-bar-mode -1)
+  (scroll-bar-mode -1)
+
+#+end_src
+
+*Aesthetics*
+#+begin_src emacs-lisp
+
+  (set-fringe-mode 0) ;; Bars on the left and right sides of the frame.
+  (load-theme 'tango-dark)
+  (set-frame-font "Office Code Pro 12" nil t)
+
+#+end_src
+
+*Bells*
+Emacs defaults to an auditory bell which plays a sound whenever certain actions are performed (such as trying to go below the end of a file). I prefer the visual bell which will instead flash the top and bottom of the frame to indicate.
+#+begin_src emacs-lisp
+
+  (setq visible-bell t)
+
+#+end_src
+
+** Minor Modes
+*Recentf-Mode*
+Keeps track of recently visited files across sessions and allows fast jumps to them through their dispatcher which can be invoked with ~recentf-open-files~.
+#+begin_src emacs-lisp
+
+  (recentf-mode 1)
+  (setq recentf-max-menu-items 12)
+  (setq recentf-max-saved-items 12)
+
+#+end_src
+
+*Save-Place-Mode*
+This minor mode saves cursor positions in files and restores them the next time the file is opened.
+#+begin_src emacs-lisp
+
+  (save-place-mode 1)
+
+#+end_src
+
+
+*Visual-Line-Mode*
+#+begin_src emacs-lisp
+
+  (global-visual-line-mode 1)
+
+#+end_src
+
+*Auto-Revert-Mode*
+Auto-Revert-Mode will automatically revert buffers if the file they are displaying is changed.
+#+begin_src emacs-lisp
+
+  (global-auto-revert-mode 1)
+
+#+end_src
+
+*Display-Line-Numbers-Mode*
+Displays line numbers in the left margin of buffers. I only enable these in programming major modes and they are disabled in text major modes.
+#+begin_src emacs-lisp
+
+  (add-hook 'prog-mode-hook
+            (lambda() (display-line-numbers-mode 'visual)))
+  (add-hook 'text-mode-hook
+            (lambda () (display-line-numbers-mode -1)))
+
+#+end_src
+
 * Package Management
 ** Straight
 ~straight.el~ is a package manager available on Windows and Linux which handles Emacs packages in a more precise way. It can download, compile, and load exact versions of packages hosted on github (down to the specific commit).For this, ~straight.el~ uses a lock file (createable with ~straight-freeze-versions~) to keep track of these. The order packages are loaded in is important. ~straight.el~ will try to download the most recent version, along with its dependencies, which sometimes leads to version mismatches (e.g. ~org~).
@@ -70,7 +153,7 @@ The below code is taken from [[https://github.com/radian-software/straight.el#ge
 #+end_src
 
 ** Built-ins
-Emacs comes with packages that are generally always out-of-date no matter how new the version. To prevent version mismatches, you must load them in with ~straight.el~ before third-party packages declare them in their dependancies.
+Emacs comes with packages that are generally always out-of-date no matter the Emacs version. To prevent version mismatches, you must load them in with ~straight.el~ before third-party packages declare them in their dependancies.
 #+begin_src emacs-lisp
 
   (straight-use-package '(org :type built-in))
@@ -136,59 +219,6 @@ A MELPA package that hides enabled minor modes in the mode line. This is to keep
     ;; (add-hook 'prog-mode-hook 'electric-pair-mode)
 
 #+end_src
-** UI
-#+begin_src emacs-lisp
-  ;; Disable mouse-centric menus.
-  (setq initial-scratch-message "")
-  (setq inhibit-startup-message t)
-  (setq inhibit-startup-echo-area-message "guerry")
-  (tool-bar-mode -1)
-  (menu-bar-mode -1)
-  (scroll-bar-mode -1)
-
-  ;; Visual alarm bell instead of audio version
-  (setq visible-bell t)
-#+end_src
-** Aesthetics
-#+begin_src emacs-lisp
-  ;; Fringes (Frame padding?)
-  (set-fringe-mode 10)
-
-  ;; Theme
-  (load-theme 'tango-dark)
-
-  ;; Font(s)
-  (set-frame-font "Office Code Pro 12" nil t)
-#+end_src
-** Global Minor Modes
-#+begin_src emacs-lisp
-
-  (global-visual-line-mode 1)
-  (save-place-mode 1)
-  (global-auto-revert-mode 1)
-
-#+end_src
-
-*Display-Line-Numbers-Mode*
-Displays line numbers in the left margin of buffers. I only enable these in programming major modes and they are disabled in text major modes.
-#+begin_src emacs-lisp
-
-  (add-hook 'prog-mode-hook
-            (lambda() (display-line-numbers-mode 'visual)))
-  (add-hook 'text-mode-hook
-            (lambda () (display-line-numbers-mode -1)))
-
-#+end_src
-
-*Recentf-Mode*
-Keeps track of recently visited files across sessions and allows fast jumps to them through their dispatcher which can be invoked with ~recentf-open-files~.
-#+begin_src emacs-lisp
-
-  (recentf-mode 1)
-  (setq recentf-max-menu-items 12)
-  (setq recentf-max-saved-items 12)
-
-#+end_src
 
 ** Backup and Autosave
 #+begin_src emacs-lisp
@@ -197,7 +227,6 @@ Keeps track of recently visited files across sessions and allows fast jumps to t
         `(("." . ,(expand-file-name "~/.emacs.d/backups"))))
   (setq auto-save-file-name-transforms
         `((".*" "~/.emacs.d/.saves/" t)))
-  (message "Base loaded in...")
 
 #+end_src
 
@@ -675,7 +704,7 @@ Startup Properties.
   (setq org-startup-folded t)
   (setq org-startup-with-inline-images t)
   (setq org-startup-with-latex-preview t)
-  (setq org-hide-block-startup t)
+  (setq org-hide-block-startup nil)
 
 #+end_src
 
@@ -778,22 +807,20 @@ Rest of the config.
 *** Org-capture templates
 Base
 #+begin_src emacs-lisp 
-      (defvar my-oc-templates '())
-      (add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
-                                           "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n")
-                                          ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-                                          ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-                                          ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")
-                                          ("f" "Food" entry (file+headline "~/.emacs.d/org/roam/food.org" "Food Journal") "** [%<%d/%m/%Y>]\n + Breakfast :: %?\n + Lunch :: \n + Dinner :: \n + Misc :: ")))
+  (defvar my-oc-templates '())
+  (add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
+				       "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n")
+				      ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
+				      ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
+				      ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")
+				      ("f" "Food" entry (file+headline "~/.emacs.d/org/roam/food.org" "Food Journal") "** [%<%d/%m/%Y>]\n + Breakfast :: %?\n + Lunch :: \n + Dinner :: \n + Misc :: ")))
 #+end_src
 
 Agenda 
 #+begin_src emacs-lisp
   (add-list-to-var 'my-oc-templates '(("a" "Agenda Items")
-                                      ("ad" "Day plan" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Day Plans") "**  %?")
-                                      ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/gtd.org" "Todos") "+ [ ] %^{TODO}." :immediate-finish t)
-                                      ("aa" "Appointment" entry (file+headline "~/.emacs.d/org/agenda/gtd.org" "Appointments") "** TODO %^{APPOINTMENT}\n%(my-org-schedule)\n%?")
-                                      ("al" "To Learn" item (file+headline "~/.emacs.d/org/agenda/gtd.org" "Things to Learn") "+ %^{CONCEPT} :: %^{DESCRIPTION}." :immediate-finish t)))
+                                      ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/inbox.org" "Box") "+ [ ] %^{TODO}." :immediate-finish t)
+                                      ("al" "To Learn" item (file+headline "~/.emacs.d/org/agenda/inbox.org" "Hmmm... Interesting") "+ %^{CONCEPT} :: %^{DESCRIPTION}." :immediate-finish t)))
 #+end_src
 
 Reflection
@@ -821,7 +848,7 @@ Bibiliography
   (setq org-capture-templates my-oc-templates)
 #+end_src
 ** Babel
-Taken from System Crafters "Emacs from Scratch #7." It automatically tangles init.org whenever it is saved.
+Taken from System Crafters "Emacs from Scratch #7." It automatically tangles ~init.org~ whenever it is saved.
 #+begin_src emacs-lisp
   ;; Automatically tangle our Emacs.org config file when we save it
   (defun efs/org-babel-tangle-config ()
@@ -1044,13 +1071,6 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
     :hook (prog-mode . company-mode))
 #+end_src
 
-** Eglot
-#+begin_src emacs-lisp
-  (use-package eglot
-    :hook ((c-mode . eglot-ensure)
-           (c++-mode . eglot-ensure)))
-#+end_src
-
 ** Yasnippet
 #+begin_src emacs-lisp
   (use-package yasnippet
@@ -1113,5 +1133,15 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
     (fill-column 100)
     :config
     (setq-default visual-fill-column-center-text t))
+
+#+end_src
+
+** Eglot
+An LSP client which easily brings over modern IDE capabilities to Emacs. Like other LSP clients, Eglot can be integrated with packages like company for additional functionality. The below code starts Eglot (along with the language server) for different major modes.
+#+begin_src emacs-lisp :tangle no
+
+  (require eglot)
+  (add-hook 'c++-mode-hook eglot-ensure)
+  (add-hook 'c-mode-hook eglot-ensure)
 
 #+end_src
