@@ -718,27 +718,38 @@ Startup Properties.
 #+end_src
 
 Agenda Variables
+These are general agenda variables I like for my custom agenda views. I do not use the default views very often so I do not mind how my configuration affects them.
 #+begin_src emacs-lisp
 
   (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
   (setq org-agenda-start-on-weekday nil)
-  (setq org-agenda-start-day "-2d")
-  (setq org-agenda-span 10)
   (setq org-agenda-show-future-repeats t)
   (setq org-agenda-entry-text-maxlines 3)
+  (setq org-agenda-start-day "+0d")
   (setq org-habit-show-habits-only-for-today t)
+  (setq org-habit-show-habits nil)
+
+#+end_src
+
+*Custom Agenda Views*
+#+begin_src emacs-lisp
+
   (setq org-agenda-custom-commands '(("d" "Dashboard"
-				      ((agenda "" ((org-agenda-start-day "+0d")
-						   (org-agenda-span 5)
-						   (org-agenda-start-with-entry-text-mode t)))))
+				      ((agenda "" ((org-agenda-span 5)
+						   (org-agenda-start-with-entry-text-mode t)
+						   (org-habit-show-all-today t)
+						   (org-habit-show-habits t)))))
 				     ("r" "Report"
 				      ((agenda "" ((org-agenda-start-day "-21d")
 						   (org-agenda-span 21)
 						   (org-agenda-start-with-log-mode t)
 						   (org-agenda-start-with-clockreport-mode t)
-						   (org-agenda-skip-archived-trees nil)))))))
+						   (org-agenda-skip-archived-trees nil)))))
+				     ("f" "Future"
+				      ((agenda "" ((org-agenda-span 30)))))))
 
 #+end_src
+
 
 *Todo*
 This sets custom TODO keywords along with their faces. I follow the regular TODO/DONE states used by regular orgmode with more descriptive subcategories. Parentheses designate the keyword's shortkey in the ~org-todo~.
@@ -764,6 +775,30 @@ Colors and background colors of text org emphasis tags are set here. All the emp
   (set-face-attribute 'org-code nil :background
 		      (color-darken-name
 		       (face-attribute 'default :background) 3))
+
+#+end_src
+
+*Export*
+#+begin_src emacs-lisp
+
+  (require 'ox-latex)
+  (add-to-list 'org-latex-classes '("custom" "\\documentclass[12pt]{article}
+		    \\usepackage{parskip}
+		  \\usepackage{amsmath}
+	      \\usepackage{hyperref}
+	    \\hypersetup{
+	colorlinks=true,
+	linkcolor=blue,,
+	}
+      \\usepackage{listings}
+  \\renewcommand{\\rmdefault}{\\sfdefault}
+    "
+				    ("\\section{%s}" . "\\section*{%s}")
+				    ("\\subsection{%s}" . "\\subsection*{%s}")
+				    ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+				    ("\\paragraph{%s}" . "\\paragraph*{%s}")
+				    ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+  (setq org-latex-listings t)
 
 #+end_src
 
@@ -903,7 +938,7 @@ Roam itself.
                                           ("m" "moment" entry "* %<%I:%M %p> %?"
                                            :target (file+head "%<%Y-%m-%d>.org" "#+TITLE: %<%Y-%m-%d>\n")
                                            :unnarrowed t)))
-    (org-roam-file-exclude-regexp "\\(inbox.org\\)\\|\\(work.org\\)\\|\\(daily/\\)\\|\\(mistakes.org\\)|\\(drill.org\\)")
+    (org-roam-file-exclude-regexp "\\(inbox.org\\)\\|\\(work.org\\)\\|\\(daily/\\)\\|\\(mistakes.org\\)\\|\\(drill.org\\)")
     :config
     (require 'org-roam-dailies)
     (org-roam-db-autosync-mode))
@@ -967,16 +1002,24 @@ UI
 #+end_src
 ** Drill
 #+begin_src emacs-lisp
+
   (use-package org-drill
     :custom
     (org-drill-scope '("~/.emacs.d/org/roam/drill.org"))
     (org-drill-hide-item-headings-p t)
-    (org-drill-maximum-items-per-session nil))
+    (org-drill-maximum-items-per-session nil)
+    (org-drill-maximum-duration 30)
+    (org-drill-add-random-noise-to-intervals-p t)
+    (org-drill-adjust-intervals-for-early-and-late-repetitions-p t))
+
 #+end_src
-** Ox-Hugo
+
+** Ox-hugo
 #+begin_src emacs-lisp
+
   (use-package ox-hugo
-    :requires (ox))
+      :requires (ox))
+
 #+end_src
 
 * Evil

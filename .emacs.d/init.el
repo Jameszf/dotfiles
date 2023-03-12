@@ -448,21 +448,25 @@
 
 (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
 (setq org-agenda-start-on-weekday nil)
-(setq org-agenda-start-day "-2d")
-(setq org-agenda-span 10)
 (setq org-agenda-show-future-repeats t)
 (setq org-agenda-entry-text-maxlines 3)
+(setq org-agenda-start-day "+0d")
 (setq org-habit-show-habits-only-for-today t)
+(setq org-habit-show-habits nil)
+
 (setq org-agenda-custom-commands '(("d" "Dashboard"
-				    ((agenda "" ((org-agenda-start-day "+0d")
-						 (org-agenda-span 5)
-						 (org-agenda-start-with-entry-text-mode t)))))
+				    ((agenda "" ((org-agenda-span 5)
+						 (org-agenda-start-with-entry-text-mode t)
+						 (org-habit-show-all-today t)
+						 (org-habit-show-habits t)))))
 				   ("r" "Report"
 				    ((agenda "" ((org-agenda-start-day "-21d")
 						 (org-agenda-span 21)
 						 (org-agenda-start-with-log-mode t)
 						 (org-agenda-start-with-clockreport-mode t)
-						 (org-agenda-skip-archived-trees nil)))))))
+						 (org-agenda-skip-archived-trees nil)))))
+				   ("f" "Future"
+				    ((agenda "" ((org-agenda-span 30)))))))
 
 (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
 (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
@@ -478,6 +482,25 @@
 (set-face-attribute 'org-code nil :background
 		    (color-darken-name
 		     (face-attribute 'default :background) 3))
+
+(require 'ox-latex)
+(add-to-list 'org-latex-classes '("custom" "\\documentclass[12pt]{article}
+		  \\usepackage{parskip}
+		\\usepackage{amsmath}
+	    \\usepackage{hyperref}
+	  \\hypersetup{
+      colorlinks=true,
+      linkcolor=blue,,
+      }
+    \\usepackage{listings}
+\\renewcommand{\\rmdefault}{\\sfdefault}
+  "
+				  ("\\section{%s}" . "\\section*{%s}")
+				  ("\\subsection{%s}" . "\\subsection*{%s}")
+				  ("\\subsubsection{%s}" . "\\subsubsection*{%s}")
+				  ("\\paragraph{%s}" . "\\paragraph*{%s}")
+				  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
+(setq org-latex-listings t)
 
 (setq org-return-follows-link t)
 (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
@@ -585,7 +608,7 @@
                                         ("m" "moment" entry "* %<%I:%M %p> %?"
                                          :target (file+head "%<%Y-%m-%d>.org" "#+TITLE: %<%Y-%m-%d>\n")
                                          :unnarrowed t)))
-  (org-roam-file-exclude-regexp "\\(inbox.org\\)\\|\\(work.org\\)\\|\\(daily/\\)\\|\\(mistakes.org\\)|\\(drill.org\\)")
+  (org-roam-file-exclude-regexp "\\(inbox.org\\)\\|\\(work.org\\)\\|\\(daily/\\)\\|\\(mistakes.org\\)\\|\\(drill.org\\)")
   :config
   (require 'org-roam-dailies)
   (org-roam-db-autosync-mode))
@@ -642,10 +665,13 @@
   :custom
   (org-drill-scope '("~/.emacs.d/org/roam/drill.org"))
   (org-drill-hide-item-headings-p t)
-  (org-drill-maximum-items-per-session nil))
+  (org-drill-maximum-items-per-session nil)
+  (org-drill-maximum-duration 30)
+  (org-drill-add-random-noise-to-intervals-p t)
+  (org-drill-adjust-intervals-for-early-and-late-repetitions-p t))
 
 (use-package ox-hugo
-  :requires (ox))
+    :requires (ox))
 
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
