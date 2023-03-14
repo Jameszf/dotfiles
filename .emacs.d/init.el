@@ -96,19 +96,20 @@
     (add-to-list 'common-files `(,(format "[%s] %s" (upcase name) cfpath) . ,cfpath))))
 
 (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
-                             "~/.emacs.d/org/roam/reflections.org"
-                             "~/.emacs.d/org/roam/bibliography.org"
-                             "~/.emacs.d/org/agenda/inbox.org"
-                             "~/.emacs.d/org/roam/mistakes.org"
-                             "~/.emacs.d/init.el"
-                             "~/.emacs.d/org/roam/bookmarks.org"
-                             "~/.emacs.d/org/roam/problems.org"
-                             "~/.emacs.d/org/roam/work.org"
-                             "~/.emacs.d/org/roam/food.org"
-                             "~/.emacs.d/org/roam/code.org"
-                             "~/.emacs.d/org/roam/drill.org"
-                             "~/.emacs.d/org/agenda/habits.org"
-                             "~/.emacs.d/org/agenda/school.org")))
+			     "~/.emacs.d/org/roam/reflections.org"
+			     "~/.emacs.d/org/roam/bibliography.org"
+			     "~/.emacs.d/org/agenda/inbox.org"
+			     "~/.emacs.d/org/roam/mistakes.org"
+			     "~/.emacs.d/init.el"
+			     "~/.emacs.d/org/roam/bookmarks.org"
+			     "~/.emacs.d/org/roam/problems.org"
+			     "~/.emacs.d/org/roam/work.org"
+			     "~/.emacs.d/org/roam/food.org"
+			     "~/.emacs.d/org/roam/code.org"
+			     "~/.emacs.d/org/roam/drill.org"
+			     "~/.emacs.d/org/agenda/habits.org"
+			     "~/.emacs.d/org/agenda/school.org"
+			     "~/.emacs.d/org/agenda/me.org")))
   (mapcar 'add-common-file common-files-to-add))
 
 (defun restart-emacs-debug-mode ()
@@ -668,7 +669,8 @@
   (org-drill-maximum-items-per-session nil)
   (org-drill-maximum-duration 30)
   (org-drill-add-random-noise-to-intervals-p t)
-  (org-drill-adjust-intervals-for-early-and-late-repetitions-p t))
+  (org-drill-adjust-intervals-for-early-and-late-repetitions-p t)
+  (org-drill-save-buffers-after-drill-sessions-p nil))
 
 (use-package ox-hugo
     :requires (ox))
