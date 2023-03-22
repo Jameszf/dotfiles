@@ -1,0 +1,9 @@
+# -*- mode: snippet -*-
+# name: Simple drill card
+# key: sdc
+# --
+
+** $1
+$0
+*** Back
+$2

@@ -1,0 +1,7 @@
+# -*- mode: snippet -*-
+# name: general-compile-cpp-object-files
+# key: ccpp
+# --
+
+%.o: %.c
+	g++ -c $< -o $@
