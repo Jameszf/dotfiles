@@ -31,7 +31,6 @@ Most of my Emacs config is generated using this file. I use literate programming
     
 * Issues
  + Evil org mode header movement.
- + Org-appear triggering outside of org-mode files (probable source: ~my-org-appear-trigger-function~).
  + org-capture "rw" template doesn't link to the correct task if the heading is non-unique.
  + pasting from register in minibuffer (what is a register? How does copying and pasting work?).
  + Alignment in org tables with chinese characters.
@@ -715,6 +714,7 @@ Startup Properties.
   (setq org-startup-with-inline-images t)
   (setq org-startup-with-latex-preview t)
   (setq org-hide-block-startup nil)
+  (setq org-pretty-entities t)
 
 #+end_src
 
@@ -960,15 +960,19 @@ UI
     (interactive)
     ;; (message "my org-appear-trigger function triggered!")
     (org-appear-mode)
-    (add-hook 'evil-insert-state-entry-hook #'org-appear-manual-start)
-    (add-hook 'evil-insert-state-exit-hook #'org-appear-manual-stop))
+    (add-hook 'evil-insert-state-entry-hook (lambda () (when (string= major-mode "org-mode")
+							     (org-appear-manual-start))))
+    (add-hook 'evil-insert-state-exit-hook (lambda () (when (string= major-mode "org-mode")
+							  (org-appear-manual-stop)))))
 
   (use-package org-appear
     :requires (org)
     :custom
-    (org-appear-trigger 'manual))
-    ;; :hook
-    ;; (org-mode . my-org-appear-trigger-function))
+    (org-appear-trigger 'manual)
+    (org-appear-autolinks t)
+    (org-appear-inside-latex t)
+    :hook
+    (org-mode . my-org-appear-trigger-function))
 #+end_src
 ** Superstar
 #+begin_src emacs-lisp

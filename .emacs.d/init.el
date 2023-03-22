@@ -446,6 +446,7 @@
 (setq org-startup-with-inline-images t)
 (setq org-startup-with-latex-preview t)
 (setq org-hide-block-startup nil)
+(setq org-pretty-entities t)
 
 (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
 (setq org-agenda-start-on-weekday nil)
@@ -625,15 +626,19 @@
   (interactive)
   ;; (message "my org-appear-trigger function triggered!")
   (org-appear-mode)
-  (add-hook 'evil-insert-state-entry-hook #'org-appear-manual-start)
-  (add-hook 'evil-insert-state-exit-hook #'org-appear-manual-stop))
+  (add-hook 'evil-insert-state-entry-hook (lambda () (when (string= major-mode "org-mode")
+							   (org-appear-manual-start))))
+  (add-hook 'evil-insert-state-exit-hook (lambda () (when (string= major-mode "org-mode")
+							(org-appear-manual-stop)))))
 
 (use-package org-appear
   :requires (org)
   :custom
-  (org-appear-trigger 'manual))
-  ;; :hook
-  ;; (org-mode . my-org-appear-trigger-function))
+  (org-appear-trigger 'manual)
+  (org-appear-autolinks t)
+  (org-appear-inside-latex t)
+  :hook
+  (org-mode . my-org-appear-trigger-function))
 
 (use-package org-superstar
   :custom
