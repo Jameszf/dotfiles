@@ -1,9 +1,9 @@
 # -*- mode: snippet -*-
-# name: Simple drill card
+# name: simple-drill-card
 # key: sdc
 # --
 
-** $1
-$0
+** Card `(format-time-string "%s")`
+${1:question}
 *** Back
-$2
+${2:answer}

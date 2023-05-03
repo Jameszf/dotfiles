@@ -1,0 +1,12 @@
+# key: pvc
+# name: phonetic-vowel-card
+# --
+** Card `(format-time-string "%s")` :drill:
+What is the sound, manner/place of articulation of [${1:vowel}]
+*** Back
+Sound: ${2:sound} (=/`(clipboard-yank)`/=).
+Position of the Tongue: ${3:Position}.
+Tenseness: ${4:$$(yas-choose-value '("Tense" "Lax"))}.
+Roundness of Lips: ${5:$$(yas-choose-value '("Rounded" "Unrounded"))}.
+
+$0

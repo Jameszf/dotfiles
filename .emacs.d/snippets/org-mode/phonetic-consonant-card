@@ -1,0 +1,10 @@
+# -*- mode: snippet -*-
+# name: phonetic-consonant-card
+# key: pcc
+# --
+** Card `(format-time-string "%s")` :drill:
+What is the sound, manner/place of articulation of [${1:consonant}]
+*** Back
+Sound: ${2:sound} (=/`(clipboard-yank)`/=).
+Manner: ${3:manner}.
+Place: ${4:place}.
