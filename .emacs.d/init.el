@@ -98,18 +98,15 @@
 (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
 			     "~/.emacs.d/org/roam/reflections.org"
 			     "~/.emacs.d/org/roam/bibliography.org"
-			     "~/.emacs.d/org/agenda/inbox.org"
 			     "~/.emacs.d/org/roam/mistakes.org"
 			     "~/.emacs.d/init.el"
 			     "~/.emacs.d/org/roam/bookmarks.org"
 			     "~/.emacs.d/org/roam/problems.org"
-			     "~/.emacs.d/org/roam/work.org"
 			     "~/.emacs.d/org/roam/food.org"
 			     "~/.emacs.d/org/roam/code.org"
 			     "~/.emacs.d/org/roam/drill.org"
 			     "~/.emacs.d/org/agenda/habits.org"
-			     "~/.emacs.d/org/agenda/school.org"
-			     "~/.emacs.d/org/agenda/me.org")))
+			     "~/.emacs.d/org/agenda/life.org")))
   (mapcar 'add-common-file common-files-to-add))
 
 (defun restart-emacs-debug-mode ()
@@ -390,7 +387,8 @@
   "y i" '(yas-insert-snippet :which-key "Insert")
   "y n" '(yas-new-snippet :which-key "New")
   "y t" '(yas-describe-tables :which-key "Describe Tables")
-  "y r" '(yas-reload-all :which-key "Reload all"))
+  "y r" '(yas-reload-all :which-key "Reload all")
+  "y f" '(yas-visit-snippet-file :which-key "Visit Snippet File"))
 
 (general-define-key
  :keymaps 'org-agenda-mode-map
@@ -458,9 +456,9 @@
 
 (setq org-agenda-custom-commands '(("d" "Dashboard"
 				    ((agenda "" ((org-agenda-span 5)
-						 (org-agenda-start-with-entry-text-mode t)
-						 (org-habit-show-all-today t)
-						 (org-habit-show-habits t)))))
+						(org-agenda-start-with-entry-text-mode t)
+						(org-habit-show-all-today t)
+						(org-habit-show-habits t)))))
 				   ("r" "Report"
 				    ((agenda "" ((org-agenda-start-day "-21d")
 						 (org-agenda-span 21)
@@ -470,9 +468,13 @@
 				   ("f" "Future"
 				    ((agenda "" ((org-agenda-span 30)))))))
 
-(setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
-(setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
-  (setq org-use-fast-todo-selection t)
+(setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "TODAY(q)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
+(setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow") ("TODAY" . "purple")))
+(setq org-use-fast-todo-selection t)
+
+(setq org-priority-highest 5)
+(setq org-priority-default 3)
+(setq org-priority-lowest 1)
 
 (require 'color)
 (set-face-attribute 'org-block nil :background

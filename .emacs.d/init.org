@@ -249,18 +249,15 @@ Code for my common-files command. This command allows easy opening of files (in 
   (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
 			       "~/.emacs.d/org/roam/reflections.org"
 			       "~/.emacs.d/org/roam/bibliography.org"
-			       "~/.emacs.d/org/agenda/inbox.org"
 			       "~/.emacs.d/org/roam/mistakes.org"
 			       "~/.emacs.d/init.el"
 			       "~/.emacs.d/org/roam/bookmarks.org"
 			       "~/.emacs.d/org/roam/problems.org"
-			       "~/.emacs.d/org/roam/work.org"
 			       "~/.emacs.d/org/roam/food.org"
 			       "~/.emacs.d/org/roam/code.org"
 			       "~/.emacs.d/org/roam/drill.org"
 			       "~/.emacs.d/org/agenda/habits.org"
-			       "~/.emacs.d/org/agenda/school.org"
-			       "~/.emacs.d/org/agenda/me.org")))
+			       "~/.emacs.d/org/agenda/life.org")))
     (mapcar 'add-common-file common-files-to-add))
 #+end_src
 
@@ -574,9 +571,12 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 **** Elfeed
 #+begin_src emacs-lisp
+
   (apps-leader-def
     "e" '(elfeed :which-key "Elfeed"))
+
 #+end_src
+
 *** Project
 #+begin_src emacs-lisp
 
@@ -638,7 +638,8 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "y i" '(yas-insert-snippet :which-key "Insert")
     "y n" '(yas-new-snippet :which-key "New")
     "y t" '(yas-describe-tables :which-key "Describe Tables")
-    "y r" '(yas-reload-all :which-key "Reload all"))
+    "y r" '(yas-reload-all :which-key "Reload all")
+    "y f" '(yas-visit-snippet-file :which-key "Visit Snippet File"))
 
 #+end_src
 ** Modes
@@ -737,9 +738,9 @@ These are general agenda variables I like for my custom agenda views. I do not u
 
   (setq org-agenda-custom-commands '(("d" "Dashboard"
 				      ((agenda "" ((org-agenda-span 5)
-						   (org-agenda-start-with-entry-text-mode t)
-						   (org-habit-show-all-today t)
-						   (org-habit-show-habits t)))))
+						  (org-agenda-start-with-entry-text-mode t)
+						  (org-habit-show-all-today t)
+						  (org-habit-show-habits t)))))
 				     ("r" "Report"
 				      ((agenda "" ((org-agenda-start-day "-21d")
 						   (org-agenda-span 21)
@@ -751,14 +752,23 @@ These are general agenda variables I like for my custom agenda views. I do not u
 
 #+end_src
 
-
 *Todo*
 This sets custom TODO keywords along with their faces. I follow the regular TODO/DONE states used by regular orgmode with more descriptive subcategories. Parentheses designate the keyword's shortkey in the ~org-todo~.
 #+begin_src emacs-lisp
 
-  (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
-  (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow")))
-    (setq org-use-fast-todo-selection t)
+  (setq org-todo-keywords '((sequence "TODO(t)" "WAITING(w)" "NEXT(n)" "TODAY(q)" "|" "DONE(d)" "FAILED(f@)" "PARTIAL(p@)" "EXCUSE(e@)")))
+  (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow") ("TODAY" . "purple")))
+  (setq org-use-fast-todo-selection t)
+
+#+end_src
+
+*Priorities*
+TODO items can have priorities assigned to them to signify importance of the task. I prefer using a 1-5 (with 5 being the highest priority) scale instead of the default A-C scale for greater flexibility in selecting the importance of each task.
+#+begin_src emacs-lisp
+
+  (setq org-priority-highest 5)
+  (setq org-priority-default 3)
+  (setq org-priority-lowest 1)
 
 #+end_src
 
@@ -1197,4 +1207,5 @@ An LSP client which easily brings over modern IDE capabilities to Emacs. Like ot
   (add-hook 'c-mode-hook eglot-ensure)
 
 #+end_src
+
 
