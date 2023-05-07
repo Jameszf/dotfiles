@@ -1,9 +1,11 @@
 # -*- mode: snippet -*-
-# name: simple-drill-card
-# key: sdc
+# name: mandarin-idiom-drill-card
+# key: midc
 # --
-
 *** Card `(format-time-string "%s")` :drill:
-${1:question}
+$1
 **** Back
-${2:answer}
+Pinyin: $2.
+Meaning: $3.
+
+$0

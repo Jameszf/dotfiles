@@ -1,0 +1,11 @@
+# key: mrdc
+# name: mandarin-radical-drill-card
+# --
+*** Card `(format-time-string "%s")` :drill:
+$1
+**** Back
+Pinyin: $2.
+Meaning: $3.
+Examples: $4.
+
+$0
