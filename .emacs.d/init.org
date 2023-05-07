@@ -34,6 +34,7 @@ Most of my Emacs config is generated using this file. I use literate programming
  + org-capture "rw" template doesn't link to the correct task if the heading is non-unique.
  + pasting from register in minibuffer (what is a register? How does copying and pasting work?).
  + Alignment in org tables with chinese characters.
+ + Increase visibility of display time in mode line by changing the face and figure out the meaning of the additional numbers after the time.
 
 * Requirements
 Additional software is required for this configuration to work.
@@ -90,7 +91,6 @@ This minor mode saves cursor positions in files and restores them the next time 
 
 #+end_src
 
-
 *Visual-Line-Mode*
 #+begin_src emacs-lisp
 
@@ -114,6 +114,15 @@ Displays line numbers in the left margin of buffers. I only enable these in prog
             (lambda() (display-line-numbers-mode 'visual)))
   (add-hook 'text-mode-hook
             (lambda () (display-line-numbers-mode -1)))
+
+#+end_src
+
+*Display-Time-Mode*
+Displays the time in the mode line across all buffers. The visibility isn't great but that can be changed by changing the face in =display-time-string-formats=.
+#+begin_src emacs-lisp
+
+  (setq display-time-24hr-format t)
+  (display-time-mode t)
 
 #+end_src
 
@@ -518,7 +527,8 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "h d" '(helpful-at-point :which-key "At point")
     "h l" '(find-library :which-key "Library")
     "h i" '(info :which-key "Info")
-    "h a" '(apropos :which-key "Apropos"))
+    "h a" '(apropos :which-key "Apropos")
+    "h s" '(shortdoc-display-group :which-key "Shortdoc"))
 #+end_src
 *** Insert
 #+begin_src emacs-lisp

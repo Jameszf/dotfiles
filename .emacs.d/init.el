@@ -26,6 +26,9 @@
 (add-hook 'text-mode-hook
           (lambda () (display-line-numbers-mode -1)))
 
+(setq display-time-24hr-format t)
+(display-time-mode t)
+
 (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
 (setq debug-on-error t)
 (setq use-dialog-box nil)
@@ -306,7 +309,8 @@
   "h d" '(helpful-at-point :which-key "At point")
   "h l" '(find-library :which-key "Library")
   "h i" '(info :which-key "Info")
-  "h a" '(apropos :which-key "Apropos"))
+  "h a" '(apropos :which-key "Apropos")
+  "h s" '(shortdoc-display-group :which-key "Shortdoc"))
 
 (my-leader-def
   "i" '(:ignore t :which-key "Insert")
