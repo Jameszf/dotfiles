@@ -749,7 +749,6 @@ These are general agenda variables I like for my custom agenda views. I do not u
   (setq org-agenda-custom-commands '(("d" "Dashboard"
 				      ((agenda "" ((org-agenda-span 5)
 						  (org-agenda-start-with-entry-text-mode t)
-						  (org-habit-show-all-today t)
 						  (org-habit-show-habits t)))))
 				     ("r" "Report"
 				      ((agenda "" ((org-agenda-start-day "-21d")
@@ -1132,8 +1131,10 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 #+end_src
 ** Flycheck
 #+begin_src emacs-lisp
+
   (use-package flycheck)
   ;;  :init (global-flycheck-mode))
+
 #+end_src
 
 ** Company
@@ -1145,8 +1146,10 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 
 ** Yasnippet
 #+begin_src emacs-lisp
+
   (use-package yasnippet
     :config (yas-global-mode 1))
+
 #+end_src
 
 ** Magit
@@ -1154,6 +1157,22 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 
   (use-package magit)
 
+#+end_src
+
+** Paredit
+#+begin_src emacs-lisp
+
+  (use-package paredit
+    :straight t
+    :config
+    (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+    (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+    (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+    (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+    (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+    (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+    (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
+  
 #+end_src
 
 * Misc

@@ -461,7 +461,6 @@
 (setq org-agenda-custom-commands '(("d" "Dashboard"
 				    ((agenda "" ((org-agenda-span 5)
 						(org-agenda-start-with-entry-text-mode t)
-						(org-habit-show-all-today t)
 						(org-habit-show-habits t)))))
 				   ("r" "Report"
 				    ((agenda "" ((org-agenda-start-day "-21d")
@@ -745,6 +744,17 @@
   :config (yas-global-mode 1))
 
 (use-package magit)
+
+(use-package paredit
+  :straight t
+  :config
+  (autoload 'enable-paredit-mode "paredit" "Turn on pseudo-structural editing of Lisp code." t)
+  (add-hook 'emacs-lisp-mode-hook       #'enable-paredit-mode)
+  (add-hook 'eval-expression-minibuffer-setup-hook #'enable-paredit-mode)
+  (add-hook 'ielm-mode-hook             #'enable-paredit-mode)
+  (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
+  (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
+  (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
 
 (use-package helpful)
 
