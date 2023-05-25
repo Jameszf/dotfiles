@@ -22,12 +22,16 @@
 (global-auto-revert-mode 1)
 
 (add-hook 'prog-mode-hook
-          (lambda() (display-line-numbers-mode 'visual)))
+	  (lambda ()
+	    (display-line-numbers-mode 'visual)))
 (add-hook 'text-mode-hook
-          (lambda () (display-line-numbers-mode -1)))
+	  (lambda () (display-line-numbers-mode -1)))
 
 (setq display-time-24hr-format t)
 (display-time-mode t)
+
+(setq-default display-fill-column-indicator-column 80)
+(add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 
 (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
 (setq debug-on-error t)
@@ -109,7 +113,9 @@
 			     "~/.emacs.d/org/roam/code.org"
 			     "~/.emacs.d/org/roam/drill.org"
 			     "~/.emacs.d/org/agenda/habits.org"
-			     "~/.emacs.d/org/agenda/life.org")))
+			     "~/.emacs.d/org/agenda/life.org"
+			     "~/.emacs.d/org/interesting.org"
+			     "~/.emacs.d/org/complaints.org")))
   (mapcar 'add-common-file common-files-to-add))
 
 (defun restart-emacs-debug-mode ()
@@ -549,28 +555,59 @@
                                  ("" "amssymb")))
 
 (defvar my-oc-templates '())
-(add-list-to-var 'my-oc-templates '(("i" "Inbox" entry (file "~/.emacs.d/org/roam/inbox.org")
+(add-list-to-var 'my-oc-templates '(("i" "Inbox" entry
+				     (file "~/.emacs.d/org/roam/inbox.org")
 				     "* [%<%Y-%m-%d %k:%M>] %?\n%(gen-time-heading-id)\n** Questions\n")
-				    ("m" "Mistake Entry" entry (file "~/.emacs.d/org/roam/mistakes.org") "* %? \n%(gen-time-heading-id)")
-				    ("p" "CP Problem" entry (file "~/.emacs.d/org/roam/problems.org") "* [[%x][%<%Y-%m-%d>]]" :immediate-finish t)
-				    ("w" "Work Session" entry (file "~/.emacs.d/org/roam/work.org") "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")
-				    ("f" "Food" entry (file+headline "~/.emacs.d/org/roam/food.org" "Food Journal") "** [%<%d/%m/%Y>]\n + Breakfast :: %?\n + Lunch :: \n + Dinner :: \n + Misc :: ")))
+				    ("m" "Mistake Entry" entry
+				     (file "~/.emacs.d/org/roam/mistakes.org")
+				     "* %? \n%(gen-time-heading-id)")
+				    ("p" "CP Problem" entry
+				     (file "~/.emacs.d/org/roam/problems.org")
+				     "* [[%x][%<%Y-%m-%d>]]"
+				     :immediate-finish t)
+				    ("w" "Work Session" entry
+				     (file "~/.emacs.d/org/roam/work.org")
+				     "* Work Session #%^{SESSION NUMBER}\n%(my-org-schedule)\n** TODOs\n*** TODO  %?\n** Reflection")
+				    ("f" "Food" entry
+				     (file+headline
+				      "~/.emacs.d/org/roam/food.org"
+				      "Food Journal")
+				     "** [%<%d/%m/%Y>]\n + Breakfast :: %?\n + Lunch :: \n + Dinner :: \n + Misc :: ")))
 
-(add-list-to-var 'my-oc-templates '(("a" "Agenda Items")
-                                    ("at" "Todo" checkitem (file+headline "~/.emacs.d/org/agenda/inbox.org" "Box") "+ [ ] %^{TODO}." :immediate-finish t)
-                                    ("al" "To Learn" item (file+headline "~/.emacs.d/org/agenda/inbox.org" "Hmmm... Interesting") "+ %^{CONCEPT} :: %^{DESCRIPTION}." :immediate-finish t)))
+(add-list-to-var 'my-oc-templates '(("l" "Life")
+				    ("lt" "Todo" entry
+				     (file "~/.emacs.d/org/agenda/life.org")
+				     "* %^{Keyword|TODO|WAITING} %^{Task} %^G\n%?"
+				     :empty-lines 1)
+				    ("li" "Interesting" entry
+				     (file "~/.emacs.d/org/interesting.org")
+				     "* %^{Title}\n%?"
+				     :empty-lines 1)
+				    ("lc" "Complaint" entry
+				     (file "~/.emacs.d/org/complaints.org")
+				     "* %^{Title}\n%T\n** Description\n%?\n** Motivation\n** Solution(s)\n"
+				     :empty-lines 1)))
 
 (add-list-to-var 'my-oc-templates '(("r" "Reflection templates")
-                                   ("rg" "Reflection" entry (file+headline  "~/.emacs.d/org/roam/reflections.org" "Reflections") "**  %^{TITLE} \n%T\n %?")
-                                   ("rt" "Question" checkitem (file+headline "~/.emacs.d/org/roam/reflections.org" "Questions") " + [ ] %^{Question}" :immediate-finish t)))
-
-(add-list-to-var 'my-oc-templates '(("c" "Chinese")
-                                   ("cs" "Sentence" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Sentences") " + [%<%Y-%m-%d>] %^{SENTENCE} :: %^{MEANING}" :immediate-finish t)
-                                   ("cv" "Vocabulary" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>] %^{CHARACTER} (%^{PINYIN}) :: %^{MEANING}" :immediate-finish t)
-                                   ("ca" "Archive" item (file+headline "~/.emacs.d/org/roam/20220831105406-mandarin.org" "Vocab") " + [%<%Y-%m-%d>]  %?")))
+				   ("rg" "Reflection" entry
+				    (file+headline
+				     "~/.emacs.d/org/roam/reflections.org"
+				     "Reflections")
+				    "**  %^{TITLE} \n%T\n %?"
+				    :immediate-finish t)
+				   ("rt" "Question" checkitem
+				    (file+headline
+				     "~/.emacs.d/org/roam/reflections.org"
+				     "Questions")
+				    " + [ ] %^{Question}"
+				    :immediate-finish t)))
 
 (add-list-to-var 'my-oc-templates '(("b" "Bibliography/Bookmarks")
-                                   ("bm" "Bookmarks" entry (file+headline "~/.emacs.d/org/roam/bookmarks.org" "Website Bookmarks") "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")))
+				    ("bm" "Bookmarks" entry
+				     (file+headline
+				      "~/.emacs.d/org/roam/bookmarks.org"
+				      "Website Bookmarks")
+				     "** %<%Y-%m-%d> [[%x][%?]] \n%(gen-time-heading-id)")))
 
 (setq org-capture-templates my-oc-templates)
 
