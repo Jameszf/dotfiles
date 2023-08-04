@@ -115,7 +115,7 @@ Displays line numbers in the left margin of buffers. I only enable these in prog
 
   (add-hook 'prog-mode-hook
 	    (lambda ()
-	      (display-line-numbers-mode 'visual)))
+	      (display-line-numbers-mode 1)))
   (add-hook 'text-mode-hook
 	    (lambda () (display-line-numbers-mode -1)))
 
@@ -145,6 +145,7 @@ Displays a visual indicator at a specific column. This is primarily used for pro
   (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
   (setq debug-on-error t)
   (setq use-dialog-box nil)
+  (setq vc-follow-symlinks t)
 
 #+end_src
 
@@ -161,14 +162,6 @@ Displays a visual indicator at a specific column. This is primarily used for pro
 	      (lambda ()
 		(setq indent-tabs-mode nil)
 		(setq tab-width 4)))
-
-    (add-hook 'prog-mode-hook
-	      (lambda ()
-		(display-line-numbers-mode 1)))
-
-    (add-hook 'text-mode-hook
-	      (lambda ()
-		(visual-fill-column-mode 1)))
 
     (add-hook 'emacs-startup-hook
 	      (lambda ()
@@ -260,42 +253,17 @@ A MELPA package that hides enabled minor modes in the mode line. This is to keep
 #+end_src
 
 * Personal Code
-Code for my common-files command. This command allows easy opening of files (in `common-files`) I visit often. 
-#+begin_src emacs-lisp
-
-  (defvar common-files '() "List of common files for common-files command.")
-
-  (defun add-common-file (cfpath)
-    (let ((name (substring cfpath (+ (string-match "/[-_.A-Za-z]+$" cfpath) 1) (string-match "\.[-_A-Za-z]+$" cfpath))))
-      (add-to-list 'common-files `(,(format "[%s] %s" (upcase name) cfpath) . ,cfpath))))
-
-  (let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
-			       "~/.emacs.d/org/roam/reflections.org"
-			       "~/.emacs.d/org/roam/bibliography.org"
-			       "~/.emacs.d/org/roam/mistakes.org"
-			       "~/.emacs.d/init.el"
-			       "~/.emacs.d/org/roam/bookmarks.org"
-			       "~/.emacs.d/org/roam/problems.org"
-			       "~/.emacs.d/org/roam/food.org"
-			       "~/.emacs.d/org/roam/code.org"
-			       "~/.emacs.d/org/roam/drill.org"
-			       "~/.emacs.d/org/agenda/habits.org"
-			       "~/.emacs.d/org/agenda/life.org"
-			       "~/.emacs.d/org/interesting.org"
-			       "~/.emacs.d/org/complaints.org")))
-    (mapcar 'add-common-file common-files-to-add))
-
-#+end_src
-
 Restart emacs commands.
 #+begin_src emacs-lisp
-    (defun restart-emacs-debug-mode ()
-      (interactive)
-      (restart-emacs '("--debug-init")))
 
-    (defun restart-emacs-no-init ()
-      (interactive)
-      (restart-emacs '("--no-init-file")))
+  (defun restart-emacs-debug-mode ()
+    (interactive)
+    (restart-emacs '("--debug-init")))
+
+  (defun restart-emacs-no-init ()
+    (interactive)
+    (restart-emacs '("--no-init-file")))
+
 #+end_src
 
 Functions
@@ -330,11 +298,6 @@ Custom commands.
   (defun load-config-file ()
     (interactive)
     (load-file (expand-file-name "~/.emacs.d/init.el")))
-
-  (defun open-common-file ()
-    (interactive)
-    (ivy-read "Goto: " common-files :require-match t :action (lambda (file) (find-file (cdr file)))))
-
 
   (defun copy-buffer-file-name ()
     (interactive)
@@ -442,15 +405,18 @@ All keybindings with a SPC prefix, this is inspired by Spacemacs system.
 *** Leader Key
 The leader key defines the primary prefix of my personal keybinds. Vim introduced leader keys were introduced to me.
 #+begin_src emacs-lisp
-    (general-create-definer my-leader-def
-      :keymaps '(normal visual emacs)
-      :prefix "SPC"
-      :non-normal-prefix "M-SPC"
-      :global-prefix "C-SPC")
+
+  (general-create-definer my-leader-def
+    :keymaps '(normal visual emacs)
+    :prefix "SPC"
+    :non-normal-prefix "M-SPC"
+    :global-prefix "C-SPC")
+
 #+end_src
 *** Org
 General Org-mode keybinds.
 #+begin_src emacs-lisp
+
   (my-leader-def
     "o" '(:ignore t :which-key "Org-mode")
     "o l" '(org-add-note :which-key "Logbook entry")
@@ -462,10 +428,12 @@ General Org-mode keybinds.
     "o s" '(org-store-link :which-key "Store Org Link")
     "o q" '(org-set-tags-command :which-key "Set Tags")
     "o x" '(org-export-dispatch :which-key "Export"))
+  
 #+end_src
 
 Useful Org-mode clocking commands.
 #+begin_src emacs-lisp
+
   (my-leader-def
     "o k" '(:ignore t :which-key "Clock")
     "o k i" '(org-clock-in :which-key "In")
@@ -475,17 +443,21 @@ Useful Org-mode clocking commands.
     "o k q" '(org-clock-cancel :which-key "Cancel")
     "o k g" '((lambda () (interactive) (icallwp 'org-clock-goto 4)) :which-key "Goto")
     "o k c" '(org-clock-goto :which-key "Current"))
+
 #+end_src
 
 Useful Org-mode archiving commands.
 #+begin_src emacs-lisp
+
   (my-leader-def 
-      "o a" '(:ignore t :which-key "Archive")
-      "o a e" '(org-archive-subtree-default :which-key "Entry")
-      "o a s" '(org-archive-subtree :which-key "Subtree")
-      "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select")
-      "o a i" '(org-toggle-archive-tag :which-key "Internal"))
+    "o a" '(:ignore t :which-key "Archive")
+    "o a e" '(org-archive-subtree-default :which-key "Entry")
+    "o a s" '(org-archive-subtree :which-key "Subtree")
+    "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select")
+    "o a i" '(org-toggle-archive-tag :which-key "Internal"))
+
 #+end_src
+
 **** Org-Roam
 #+begin_src emacs-lisp
   (my-leader-def
@@ -503,6 +475,7 @@ Useful Org-mode archiving commands.
 *** Emacs
 Generic commands for manipulating the Emacs editor system.
 #+begin_src emacs-lisp
+
   (my-leader-def
     "e" '(:ignore t :which-key "Emacs")
     "e c" '(open-emacs-config-file :which-key "Open config file")
@@ -514,7 +487,9 @@ Generic commands for manipulating the Emacs editor system.
     "e m" '(view-echo-area-messages :which-key "Echo messages")
     "e q" '(save-buffers-kill-terminal :which-key "Quit")
     "e e" '(eval-buffer :which-key "Eval Buffer"))
+
 #+end_src
+
 *** Ivy and Counsel
 #+begin_src emacs-lisp
   (my-leader-def
@@ -527,7 +502,6 @@ Generic commands for manipulating the Emacs editor system.
   (my-leader-def
   "f" '(:ignore t :which-key "Files")
   "f f" '(find-file :which-key "Find File")
-  "f c" '(open-common-file :which-key "Common Files")
   "f d" '(dired :which-key "Dired")
   "f r" '(recentf-open-files :which-key "Recent")
   "f s" '(save-buffer :which-key "Save Buffer"))
@@ -536,6 +510,7 @@ Generic commands for manipulating the Emacs editor system.
 *** Help
 Helpful commands as well as find-library that I use for understanding packages/commands.
 #+begin_src emacs-lisp
+
   (my-leader-def
     "h" '(:ignore t :which-key "Help")
     "h f" '(helpful-callable :which-key "Function")
@@ -546,6 +521,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "h i" '(info :which-key "Info")
     "h a" '(apropos :which-key "Apropos")
     "h s" '(shortdoc-display-group :which-key "Shortdoc"))
+
 #+end_src
 *** Insert
 #+begin_src emacs-lisp
@@ -621,6 +597,17 @@ Helpful commands as well as find-library that I use for understanding packages/c
 
 #+end_src
 
+*** Profiler
+#+begin_src emacs-lisp
+
+  (my-leader-def
+    "P" '(:ignore t :which-key "Profiler")
+    "P s" '(profiler-start :which-key "Start")
+    "P e" '(profiler-stop :which-key "End")
+    "P r" '(profiler-report :which-key "Report"))
+
+#+end_src
+
 *** Magit
 #+begin_src emacs-lisp
   (my-leader-def
@@ -643,11 +630,13 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 *** Commands
 #+begin_src emacs-lisp
+
   (my-leader-def
     "c" '(:ignore t :which-key "Commands")
     "c r" '(replace-regexp :which-key "Replace")
     "c e" '(eshell :which-key "Eshell")
     "c t" '(term :which-key "Term"))
+
 #+end_src
 *** Scripts
 #+begin_src emacs-lisp
@@ -729,6 +718,18 @@ Helpful commands as well as find-library that I use for understanding packages/c
    "M-k" 'ivy-previous-line)
 
 #+end_src
+*** Bookmarks
+For the built-in bookmarks package. I would like to add an ivy interface to this or something like dired buffers.
+#+begin_src emacs-lisp
+
+  (my-leader-def
+    "b" '(:ignore t :which-key "Bookmarks")
+    "b l" '(list-bookmarks :which-key "List")
+    "b j" '(bookmark-jump :which-key "Jump")
+    "b s" '(bookmark-set :which-key "Set"))
+
+#+end_src
+
 * Org
 ** Config
 Startup Properties.
@@ -750,7 +751,7 @@ Agenda Variables
 These are general agenda variables I like for my custom agenda views. I do not use the default views very often so I do not mind how my configuration affects them.
 #+begin_src emacs-lisp
 
-  (setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
+  (setq org-agenda-files (list (expand-file-name "~/.emacs.d/org/agenda/")))
   (setq org-agenda-start-on-weekday nil)
   (setq org-agenda-show-future-repeats t)
   (setq org-agenda-entry-text-maxlines 3)
@@ -969,15 +970,17 @@ Base
 ** Babel
 Taken from System Crafters "Emacs from Scratch #7." It automatically tangles ~init.org~ whenever it is saved.
 #+begin_src emacs-lisp
+
   ;; Automatically tangle our Emacs.org config file when we save it
   (defun efs/org-babel-tangle-config ()
     (when (string-equal (buffer-file-name)
-                        (expand-file-name "~/.emacs.d/init.org"))
+			(expand-file-name "~/dotfiles/.emacs.d/init.org"))
       ;; Dynamic scoping to the rescue
       (let ((org-confirm-babel-evaluate nil))
-        (org-babel-tangle))))
+	(org-babel-tangle))))
 
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
 #+end_src
 ** Roam
 Roam itself.
@@ -1030,14 +1033,15 @@ UI
   #+end_src
 ** Appear
 #+begin_src emacs-lisp
+
   (defun my-org-appear-trigger-function ()
     (interactive)
     ;; (message "my org-appear-trigger function triggered!")
     (org-appear-mode)
     (add-hook 'evil-insert-state-entry-hook (lambda () (when (string= major-mode "org-mode")
-							     (org-appear-manual-start))))
+							 (org-appear-manual-start))))
     (add-hook 'evil-insert-state-exit-hook (lambda () (when (string= major-mode "org-mode")
-							  (org-appear-manual-stop)))))
+							    (org-appear-manual-stop)))))
 
   (use-package org-appear
     :requires (org)
@@ -1047,6 +1051,7 @@ UI
     (org-appear-inside-latex t)
     :hook
     (org-mode . my-org-appear-trigger-function))
+
 #+end_src
 ** Superstar
 #+begin_src emacs-lisp
@@ -1070,9 +1075,9 @@ UI
     (set-face-attribute 'org-level-2 nil :inherit 'org-level-8 :height 1.4) 
     (set-face-attribute 'org-level-1 nil :inherit 'org-level-8 :height 1.6) 
     (set-face-attribute 'org-document-title nil
-                        :height 2.074
-                        :foreground 'unspecified
-                        :inherit 'org-level-8)
+			:height 2.074
+			:foreground 'unspecified
+			:inherit 'org-level-8)
     :hook (org-mode . (lambda () (interactive)(org-superstar-mode 1))))
 #+end_src
 
@@ -1184,6 +1189,7 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
   (use-package rainbow-delimiters
     :hook (prog-mode . rainbow-delimiters-mode))
 #+end_src
+
 ** Flycheck
 #+begin_src emacs-lisp
 
@@ -1272,13 +1278,15 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 #+end_src
 
 ** Visual-fill-column
+This package creates margins on the left and right sides of a window. A hook turns this on for text modes (e.g. org-mode).
 #+begin_src emacs-lisp
 
   (use-package visual-fill-column
     :custom
-    (fill-column 100)
+    (fill-column 80)
     :config
-    (setq-default visual-fill-column-center-text t))
+    (setq-default visual-fill-column-center-text t)
+    :hook (text-mode . (lambda () (visual-fill-column-mode 1))))
 
 #+end_src
 
@@ -1292,4 +1300,16 @@ An LSP client which easily brings over modern IDE capabilities to Emacs. Like ot
 
 #+end_src
 
+** Ledger
+#+begin_src emacs-lisp
+
+  (use-package ledger-mode
+    :custom (ledger-binary-path
+	     (expand-file-name "~/.emacs.d/third-party/ledger"))
+    :hook (ledger-mode . (lambda ()
+			   (setq-local tab-always-indent 'complete)
+			   (setq-local completion-cycle-threshold t)
+			   (setq-local ledger-complete-in-steps t))))
+
+#+end_src
 

@@ -23,7 +23,7 @@
 
 (add-hook 'prog-mode-hook
 	  (lambda ()
-	    (display-line-numbers-mode 'visual)))
+	    (display-line-numbers-mode 1)))
 (add-hook 'text-mode-hook
 	  (lambda () (display-line-numbers-mode -1)))
 
@@ -36,6 +36,7 @@
 (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
 (setq debug-on-error t)
 (setq use-dialog-box nil)
+(setq vc-follow-symlinks t)
 
 (add-hook 'python-mode-hook
 	  (lambda ()
@@ -47,14 +48,6 @@
 	  (lambda ()
 	    (setq indent-tabs-mode nil)
 	    (setq tab-width 4)))
-
-(add-hook 'prog-mode-hook
-	  (lambda ()
-	    (display-line-numbers-mode 1)))
-
-(add-hook 'text-mode-hook
-	  (lambda ()
-	    (visual-fill-column-mode 1)))
 
 (add-hook 'emacs-startup-hook
 	  (lambda ()
@@ -96,28 +89,6 @@
 
 (straight-use-package 'diminish)
 
-(defvar common-files '() "List of common files for common-files command.")
-
-(defun add-common-file (cfpath)
-  (let ((name (substring cfpath (+ (string-match "/[-_.A-Za-z]+$" cfpath) 1) (string-match "\.[-_A-Za-z]+$" cfpath))))
-    (add-to-list 'common-files `(,(format "[%s] %s" (upcase name) cfpath) . ,cfpath))))
-
-(let ((common-files-to-add '("~/.emacs.d/org/roam/inbox.org"
-			     "~/.emacs.d/org/roam/reflections.org"
-			     "~/.emacs.d/org/roam/bibliography.org"
-			     "~/.emacs.d/org/roam/mistakes.org"
-			     "~/.emacs.d/init.el"
-			     "~/.emacs.d/org/roam/bookmarks.org"
-			     "~/.emacs.d/org/roam/problems.org"
-			     "~/.emacs.d/org/roam/food.org"
-			     "~/.emacs.d/org/roam/code.org"
-			     "~/.emacs.d/org/roam/drill.org"
-			     "~/.emacs.d/org/agenda/habits.org"
-			     "~/.emacs.d/org/agenda/life.org"
-			     "~/.emacs.d/org/interesting.org"
-			     "~/.emacs.d/org/complaints.org")))
-  (mapcar 'add-common-file common-files-to-add))
-
 (defun restart-emacs-debug-mode ()
   (interactive)
   (restart-emacs '("--debug-init")))
@@ -153,11 +124,6 @@
 (defun load-config-file ()
   (interactive)
   (load-file (expand-file-name "~/.emacs.d/init.el")))
-
-(defun open-common-file ()
-  (interactive)
-  (ivy-read "Goto: " common-files :require-match t :action (lambda (file) (find-file (cdr file)))))
-
 
 (defun copy-buffer-file-name ()
   (interactive)
@@ -265,11 +231,11 @@
   "o k c" '(org-clock-goto :which-key "Current"))
 
 (my-leader-def 
-    "o a" '(:ignore t :which-key "Archive")
-    "o a e" '(org-archive-subtree-default :which-key "Entry")
-    "o a s" '(org-archive-subtree :which-key "Subtree")
-    "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select")
-    "o a i" '(org-toggle-archive-tag :which-key "Internal"))
+  "o a" '(:ignore t :which-key "Archive")
+  "o a e" '(org-archive-subtree-default :which-key "Entry")
+  "o a s" '(org-archive-subtree :which-key "Subtree")
+  "o a S" '((lambda () (interactive) (icallwp 'org-archive-subtree 4)) :which-key "Select")
+  "o a i" '(org-toggle-archive-tag :which-key "Internal"))
 
 (my-leader-def
  "r l" 'org-roam-buffer-toggle
@@ -302,7 +268,6 @@
 (my-leader-def
 "f" '(:ignore t :which-key "Files")
 "f f" '(find-file :which-key "Find File")
-"f c" '(open-common-file :which-key "Common Files")
 "f d" '(dired :which-key "Dired")
 "f r" '(recentf-open-files :which-key "Recent")
 "f s" '(save-buffer :which-key "Save Buffer"))
@@ -364,6 +329,12 @@
   "p p" '(project-switch-project :which-key "Switch Project")
   "p b" '(project-switch-to-buffer :which-key "Switch Buffer")
   "p r" '(project-find-regexp :which-key "Regex Search"))
+
+(my-leader-def
+  "P" '(:ignore t :which-key "Profiler")
+  "P s" '(profiler-start :which-key "Start")
+  "P e" '(profiler-stop :which-key "End")
+  "P r" '(profiler-report :which-key "Report"))
 
 (my-leader-def
   "m" '(:ignore t :which-key "Magit")
@@ -446,6 +417,12 @@
  "M-j" 'ivy-next-line
  "M-k" 'ivy-previous-line)
 
+(my-leader-def
+  "b" '(:ignore t :which-key "Bookmarks")
+  "b l" '(list-bookmarks :which-key "List")
+  "b j" '(bookmark-jump :which-key "Jump")
+  "b s" '(bookmark-set :which-key "Set"))
+
 (require 'org)
 (add-to-list 'org-modules 'org-habit)
 (org-indent-mode 1)
@@ -456,7 +433,7 @@
 (setq org-hide-block-startup nil)
 (setq org-pretty-entities t)
 
-(setq org-agenda-files `(,(expand-file-name "~/.emacs.d/org/agenda")))
+(setq org-agenda-files (list (expand-file-name "~/.emacs.d/org/agenda/")))
 (setq org-agenda-start-on-weekday nil)
 (setq org-agenda-show-future-repeats t)
 (setq org-agenda-entry-text-maxlines 3)
@@ -614,7 +591,7 @@
 ;; Automatically tangle our Emacs.org config file when we save it
 (defun efs/org-babel-tangle-config ()
   (when (string-equal (buffer-file-name)
-                      (expand-file-name "~/.emacs.d/init.org"))
+		      (expand-file-name "~/dotfiles/.emacs.d/init.org"))
     ;; Dynamic scoping to the rescue
     (let ((org-confirm-babel-evaluate nil))
       (org-babel-tangle))))
@@ -669,9 +646,9 @@
   ;; (message "my org-appear-trigger function triggered!")
   (org-appear-mode)
   (add-hook 'evil-insert-state-entry-hook (lambda () (when (string= major-mode "org-mode")
-							   (org-appear-manual-start))))
+						       (org-appear-manual-start))))
   (add-hook 'evil-insert-state-exit-hook (lambda () (when (string= major-mode "org-mode")
-							(org-appear-manual-stop)))))
+							  (org-appear-manual-stop)))))
 
 (use-package org-appear
   :requires (org)
@@ -702,9 +679,9 @@
   (set-face-attribute 'org-level-2 nil :inherit 'org-level-8 :height 1.4) 
   (set-face-attribute 'org-level-1 nil :inherit 'org-level-8 :height 1.6) 
   (set-face-attribute 'org-document-title nil
-                      :height 2.074
-                      :foreground 'unspecified
-                      :inherit 'org-level-8)
+		      :height 2.074
+		      :foreground 'unspecified
+		      :inherit 'org-level-8)
   :hook (org-mode . (lambda () (interactive)(org-superstar-mode 1))))
 
 (message "Org loaded in...")
@@ -812,6 +789,15 @@
 
 (use-package visual-fill-column
   :custom
-  (fill-column 100)
+  (fill-column 80)
   :config
-  (setq-default visual-fill-column-center-text t))
+  (setq-default visual-fill-column-center-text t)
+  :hook (text-mode . (lambda () (visual-fill-column-mode 1))))
+
+(use-package ledger-mode
+  :custom (ledger-binary-path
+	   (expand-file-name "~/.emacs.d/third-party/ledger"))
+  :hook (ledger-mode . (lambda ()
+			 (setq-local tab-always-indent 'complete)
+			 (setq-local completion-cycle-threshold t)
+			 (setq-local ledger-complete-in-steps t))))
