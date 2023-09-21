@@ -268,19 +268,20 @@ Restart emacs commands.
 
 Functions
 #+begin_src emacs-lisp
-    (defun gen-time-heading-id ()
-      (format ":PROPERTIES:\n:ID: %s\n:END:" (format-time-string "%Y%m%d%k%M")))
 
-    (defun icallwp (func prefix)
-      "Interactive call func with some prefix."
-      (let ((current-prefix-arg prefix))
-        (call-interactively 'func)))
+  (defun gen-time-heading-id ()
+    (format ":PROPERTIES:\n:ID: %s\n:END:" (format-time-string "%Y%m%d%k%M")))
 
-    (defun my-org-schedule ()
-      (format "SCHEDULED: <%s>" (org-read-date)))
+  (defun icallwp (func prefix)
+    "Interactive call func with some prefix."
+    (let ((current-prefix-arg prefix))
+      (call-interactively 'func)))
 
-    (defun add-list-to-var (dest-var some-list)
-      (mapcar '(lambda (x) (add-to-list dest-var x)) some-list))
+  (defun my-org-schedule ()
+    (format "SCHEDULED: <%s>" (org-read-date)))
+
+  (defun add-list-to-var (dest-var some-list)
+    (mapcar '(lambda (x) (add-to-list dest-var x)) some-list))
 #+end_src
 
 Custom commands.
@@ -371,7 +372,7 @@ Moving screenshots.
 			    (insert-screenshot (concat "file:" new-file-name)))))))
 #+end_src
 * Keybinds
-** General, Key-Chord, and Which-key
+** General, Key-Chord, Which-key, and Hydra
 General is a comprehensive keybinding management package (analoguous to use-package and package management). All of my keybindings are configured using this package with `general-define-key` or a custom leader key defintion.
 #+begin_src emacs-lisp
 
@@ -403,17 +404,37 @@ Which-key adds a help window that shows available keybinds for given prefixes.
     (which-key-mode))
 
 #+end_src
+
+Hydra provides an interface for accessing commands with the same prefix with short bindings.
+#+begin_src emacs-lisp
+
+  (use-package hydra
+    :diminish) 
+
+#+end_src
+
 ** Base
 Sets the escape key to behave similar to C-g in native emacs. This is for ergonomic reasons.
 #+begin_src emacs-lisp
 
   (general-define-key "<escape>" 'keyboard-escape-quit)
+
   (general-define-key
    :states 'normal
    "q" nil)
+
   (general-define-key
    :states 'normal
    "m" 'evil-record-macro)
+
+  ;; text-scale keybinds
+  (general-define-key
+   :states 'normal
+   "+" 'text-scale-increase)
+
+  (general-define-key
+   :states 'normal
+   "_" 'text-scale-decrease)
 
 #+end_src
 ** SPC
@@ -643,15 +664,18 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 *** Windows
 #+begin_src emacs-lisp
-    (my-leader-def
-      "w" '(:ignore t :which-key "Window")
-      "w c" '(:ignore t :which-key "Close")
-      "w c o" '(delete-other-windows :which-key "Close other windows")
-      "w c w" '(delete-window :which-key "Close window")
-      "w s" '(:ignore t :which-key "Split")
-      "w s h" '(split-window-horizontally :which-key "Split Horizontally")
-      "w s v" '(split-window-vertically :which-key "Split Vertically")
-      "w o" '(other-window :which-key "Other Window"))
+
+  (my-leader-def
+    "w" '(:ignore t :which-key "Window")
+    "w c" '(:ignore t :which-key "Close")
+    "w c o" '(delete-other-windows :which-key "Close other windows")
+    "w c w" '(delete-window :which-key "Close window")
+    "w s" '(:ignore t :which-key "Split")
+    "w s h" '(split-window-horizontally :which-key "Split Horizontally")
+    "w s v" '(split-window-vertically :which-key "Split Vertically")
+    "w o" '(other-window :which-key "Other Window")
+    "w z" '(nil :which-key "Zoom"))
+
 #+end_src
 *** Commands
 #+begin_src emacs-lisp
@@ -1167,6 +1191,12 @@ UI
     (evil-respect-visual-line-mode t)
     :config
     (evil-mode 1))
+
+  (defhydra hydra-zoom (evil-normal-state-map "SPC w z")
+    "Zoom"
+    ("=" text-scale-increase "Increase")
+    ("-" text-scale-decrease "Decrease")
+    ("0" (lambda () (interactive) (text-scale-mode -1)) "Reset"))
 
 #+end_src
 

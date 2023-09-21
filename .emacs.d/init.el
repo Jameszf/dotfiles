@@ -208,13 +208,27 @@
   :config
   (which-key-mode))
 
+(use-package hydra
+  :diminish)
+
 (general-define-key "<escape>" 'keyboard-escape-quit)
+
 (general-define-key
  :states 'normal
  "q" nil)
+
 (general-define-key
  :states 'normal
  "m" 'evil-record-macro)
+
+;; text-scale keybinds
+(general-define-key
+ :states 'normal
+ "+" 'text-scale-increase)
+
+(general-define-key
+ :states 'normal
+ "_" 'text-scale-decrease)
 
 (general-create-definer my-leader-def
   :keymaps '(normal visual emacs)
@@ -365,7 +379,8 @@
   "w s" '(:ignore t :which-key "Split")
   "w s h" '(split-window-horizontally :which-key "Split Horizontally")
   "w s v" '(split-window-vertically :which-key "Split Vertically")
-  "w o" '(other-window :which-key "Other Window"))
+  "w o" '(other-window :which-key "Other Window")
+  "w z" '(nil :which-key "Zoom"))
 
 (my-leader-def
   "c" '(:ignore t :which-key "Commands")
@@ -735,6 +750,12 @@
   (evil-respect-visual-line-mode t)
   :config
   (evil-mode 1))
+
+(defhydra hydra-zoom (evil-normal-state-map "SPC w z")
+  "Zoom"
+  ("=" text-scale-increase "Increase")
+  ("-" text-scale-decrease "Decrease")
+  ("0" (lambda () (interactive) (text-scale-mode -1)) "Reset"))
 
 (use-package evil-collection
   :requires (evil)
