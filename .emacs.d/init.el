@@ -134,15 +134,29 @@
   (interactive)
   (let ((current-file (buffer-file-name)))
     (if current-file
-        (progn
-          (save-buffer current-file)
-          (delete-file current-file)
-          (kill-buffer (current-buffer))))))
+	(progn
+	  (save-buffer current-file)
+	  (delete-file current-file)
+	  (kill-buffer (current-buffer))))))
 
 
 (defun ins-checkbox-item ()
   (interactive)
   (insert "- [ ]  "))
+
+
+(defun insert-latex-fragment ()
+  (interactive)
+  (insert "\\[  \\]")
+  (backward-char 3)
+  (evil-insert 1))
+
+(defun my-org-agenda ()
+  ;; adapted from https://emacs.stackexchange.com/questions/26655/org-mode-agenda-open-in-left-window-by-default
+  (interactive)
+  (split-window-right)
+  (let ((org-agenda-window-setup 'other-window))
+    (org-agenda nil)))
 
 
 (message "Functions loaded in...")
@@ -290,7 +304,8 @@
   "i s" '(org-schedule :which-key "Schedule")
   "i c" '(ins-checkbox-item :which-key "Checkbox")
   "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link")
-  "i l" '(org-insert-link :which-key "Org-link"))
+  "i l" '(org-insert-link :which-key "Org-link")
+  "i f" '(insert-latex-fragment :which-key "Latex Fragment"))
 
 (general-create-definer apps-leader-def
     :keymaps '(normal visual emacs)
@@ -304,10 +319,10 @@
 "d" '(org-drill :which-key "Drill"))
 
 (apps-leader-def 
-  "s" '(swiper :which-key "Swiper"))
+    "s" '(swiper :which-key "Swiper"))
 
 (apps-leader-def
- "a" '(org-agenda :which-key "Org Agenda"))
+  "a" '(my-org-agenda :which-key "Org Agenda"))
 
 (apps-leader-def
  "c" '(org-capture :which-key "Capture"))
@@ -356,7 +371,8 @@
   "c" '(:ignore t :which-key "Commands")
   "c r" '(replace-regexp :which-key "Replace")
   "c e" '(eshell :which-key "Eshell")
-  "c t" '(term :which-key "Term"))
+  "c t" '(term :which-key "Term")
+  "c c" '(compile :which-key "Compile"))
 
 (my-leader-def
   "s" '(:ignore t :which-key "Scripts")
@@ -376,15 +392,18 @@
  "j" 'org-agenda-next-line
  "k" 'org-agenda-previous-line)
 
-(general-define-key
- :states '(insert replace)
- (general-chord "fd") 'evil-normal-state
- (general-chord "df") 'evil-normal-state)
+(setq key-chord-two-keys-delay 0.2) ;; because I have slow fingers
 
+;; Allow alternative exiting of insert/replace modes.
 (general-define-key
- :states 'normal
- "j" 'evil-next-visual-line
- "k" 'evil-previous-visual-line)
+  :states '(insert replace)
+  (general-chord "fd") 'evil-normal-state
+  (general-chord "df") 'evil-normal-state)
+
+ (general-define-key
+  :states 'normal
+  "j" 'evil-next-visual-line
+  "k" 'evil-previous-visual-line)
 
 (general-define-key
  :states 'normal
@@ -431,7 +450,7 @@
 (setq org-startup-with-inline-images t)
 (setq org-startup-with-latex-preview t)
 (setq org-hide-block-startup nil)
-(setq org-pretty-entities t)
+(setq org-pretty-entities nil) ;; Disables subscripts and superscripts
 
 (setq org-agenda-files (list (expand-file-name "~/.emacs.d/org/agenda/")))
 (setq org-agenda-start-on-weekday nil)
@@ -444,7 +463,8 @@
 (setq org-agenda-custom-commands '(("d" "Dashboard"
 				    ((agenda "" ((org-agenda-span 5)
 						(org-agenda-start-with-entry-text-mode t)
-						(org-habit-show-habits t)))))
+						(org-habit-show-habits t)
+						(org-agenda-show-inherited-tags nil)))))
 				   ("r" "Report"
 				    ((agenda "" ((org-agenda-start-day "-21d")
 						 (org-agenda-span 21)
@@ -498,7 +518,8 @@
 (setq org-hidden-keywords '(title))
 (setq org-adapt-indentation t)
 (setq org-deadline-warning-days 0)
-(setq org-tags-column -60)
+(setq org-tags-column -55)
+(setq org-agenda-tags-column -90)
 (setq org-log-done 'time)
 (setq org-log-into-drawer t)
 (setq org-clock-persist 'history)
@@ -507,7 +528,7 @@
 (setq org-confirm-babel-evaluate nil)
 (setq org-export-babel-evaluate nil)
 (setq org-babel-default-header-args:sage '((:session . t)
-                                           (:results . "output")))
+					   (:results . "output")))
 (setq sage-shell:check-ipython-version-on-startup nil)
 (setq sage-shell:set-ipython-version-on-startup nil)
 
@@ -597,6 +618,11 @@
       (org-babel-tangle))))
 
 (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
+
+(org-babel-do-load-languages
+   'org-babel-load-languages
+   '((java . t)
+     (emacs-lisp . t)))
 
 (use-package org-roam
   :init
@@ -789,7 +815,7 @@
 
 (use-package visual-fill-column
   :custom
-  (fill-column 80)
+  (fill-column 100)
   :config
   (setq-default visual-fill-column-center-text t)
   :hook (text-mode . (lambda () (visual-fill-column-mode 1))))
@@ -801,3 +827,5 @@
 			 (setq-local tab-always-indent 'complete)
 			 (setq-local completion-cycle-threshold t)
 			 (setq-local ledger-complete-in-steps t))))
+
+(require 'table "/home/james/.emacs.d/third-party/table.el")

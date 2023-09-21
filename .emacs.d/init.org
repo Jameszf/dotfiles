@@ -285,6 +285,7 @@ Functions
 
 Custom commands.
 #+begin_src emacs-lisp
+
   (defun open-emacs-config-file ()
     (interactive)
     (find-file (expand-file-name "~/.emacs.d/init.org")))
@@ -308,10 +309,10 @@ Custom commands.
     (interactive)
     (let ((current-file (buffer-file-name)))
       (if current-file
-          (progn
-            (save-buffer current-file)
-            (delete-file current-file)
-            (kill-buffer (current-buffer))))))
+	  (progn
+	    (save-buffer current-file)
+	    (delete-file current-file)
+	    (kill-buffer (current-buffer))))))
 
 
   (defun ins-checkbox-item ()
@@ -319,7 +320,22 @@ Custom commands.
     (insert "- [ ]  "))
 
 
+  (defun insert-latex-fragment ()
+    (interactive)
+    (insert "\\[  \\]")
+    (backward-char 3)
+    (evil-insert 1))
+
+  (defun my-org-agenda ()
+    ;; adapted from https://emacs.stackexchange.com/questions/26655/org-mode-agenda-open-in-left-window-by-default
+    (interactive)
+    (split-window-right)
+    (let ((org-agenda-window-setup 'other-window))
+      (org-agenda nil)))
+
+
   (message "Functions loaded in...")
+
 #+end_src
 
 Moving screenshots.
@@ -402,6 +418,7 @@ Sets the escape key to behave similar to C-g in native emacs. This is for ergono
 #+end_src
 ** SPC
 All keybindings with a SPC prefix, this is inspired by Spacemacs system.
+
 *** Leader Key
 The leader key defines the primary prefix of my personal keybinds. Vim introduced leader keys were introduced to me.
 #+begin_src emacs-lisp
@@ -525,6 +542,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 *** Insert
 #+begin_src emacs-lisp
+
   (my-leader-def
     "i" '(:ignore t :which-key "Insert")
     "i t" '(org-table-create-or-convert-from-region :which-key "Org table")
@@ -532,7 +550,9 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "i s" '(org-schedule :which-key "Schedule")
     "i c" '(ins-checkbox-item :which-key "Checkbox")
     "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link")
-    "i l" '(org-insert-link :which-key "Org-link"))
+    "i l" '(org-insert-link :which-key "Org-link")
+    "i f" '(insert-latex-fragment :which-key "Latex Fragment"))
+
 #+end_src
 *** Apps
 **** Leader Key
@@ -554,13 +574,18 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 **** Swiper
 #+begin_src emacs-lisp
+
   (apps-leader-def 
-    "s" '(swiper :which-key "Swiper"))
+      "s" '(swiper :which-key "Swiper"))
+
 #+end_src
+
 **** Org-Agenda
 #+begin_src emacs-lisp
+
   (apps-leader-def
-   "a" '(org-agenda :which-key "Org Agenda"))
+    "a" '(my-org-agenda :which-key "Org Agenda"))
+  
 #+end_src
 **** Org-Capture
 #+begin_src emacs-lisp
@@ -635,7 +660,8 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "c" '(:ignore t :which-key "Commands")
     "c r" '(replace-regexp :which-key "Replace")
     "c e" '(eshell :which-key "Eshell")
-    "c t" '(term :which-key "Term"))
+    "c t" '(term :which-key "Term")
+    "c c" '(compile :which-key "Compile"))
 
 #+end_src
 *** Scripts
@@ -668,19 +694,25 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 *** Evil
 #+begin_src emacs-lisp
-  (general-define-key
-   :states '(insert replace)
-   (general-chord "fd") 'evil-normal-state
-   (general-chord "df") 'evil-normal-state)
 
+  (setq key-chord-two-keys-delay 0.2) ;; because I have slow fingers
+
+  ;; Allow alternative exiting of insert/replace modes.
   (general-define-key
-   :states 'normal
-   "j" 'evil-next-visual-line
-   "k" 'evil-previous-visual-line)
+    :states '(insert replace)
+    (general-chord "fd") 'evil-normal-state
+    (general-chord "df") 'evil-normal-state)
+
+   (general-define-key
+    :states 'normal
+    "j" 'evil-next-visual-line
+    "k" 'evil-previous-visual-line)
+
 #+end_src
 
 *** Info
 #+begin_src emacs-lisp
+
   (general-define-key
    :states 'normal
    :keymaps 'Info-mode-map
@@ -695,7 +727,9 @@ Helpful commands as well as find-library that I use for understanding packages/c
    "t" 'Info-top-node ;; t
    "f" 'Info-follow-reference ;; f
    )
+
 #+end_src
+
 *** Elfeed
 #+begin_src emacs-lisp
   (general-define-key
@@ -743,7 +777,7 @@ Startup Properties.
   (setq org-startup-with-inline-images t)
   (setq org-startup-with-latex-preview t)
   (setq org-hide-block-startup nil)
-  (setq org-pretty-entities t)
+  (setq org-pretty-entities nil) ;; Disables subscripts and superscripts
 
 #+end_src
 
@@ -764,18 +798,19 @@ These are general agenda variables I like for my custom agenda views. I do not u
 *Custom Agenda Views*
 #+begin_src emacs-lisp
 
-  (setq org-agenda-custom-commands '(("d" "Dashboard"
-				      ((agenda "" ((org-agenda-span 5)
-						  (org-agenda-start-with-entry-text-mode t)
-						  (org-habit-show-habits t)))))
-				     ("r" "Report"
-				      ((agenda "" ((org-agenda-start-day "-21d")
-						   (org-agenda-span 21)
-						   (org-agenda-start-with-log-mode t)
-						   (org-agenda-start-with-clockreport-mode t)
-						   (org-agenda-skip-archived-trees nil)))))
-				     ("f" "Future"
-				      ((agenda "" ((org-agenda-span 30)))))))
+    (setq org-agenda-custom-commands '(("d" "Dashboard"
+					((agenda "" ((org-agenda-span 5)
+						    (org-agenda-start-with-entry-text-mode t)
+						    (org-habit-show-habits t)
+						    (org-agenda-show-inherited-tags nil)))))
+				       ("r" "Report"
+					((agenda "" ((org-agenda-start-day "-21d")
+						     (org-agenda-span 21)
+						     (org-agenda-start-with-log-mode t)
+						     (org-agenda-start-with-clockreport-mode t)
+						     (org-agenda-skip-archived-trees nil)))))
+				       ("f" "Future"
+					((agenda "" ((org-agenda-span 30)))))))
 
 #+end_src
 
@@ -849,7 +884,8 @@ Rest of the config.
   (setq org-hidden-keywords '(title))
   (setq org-adapt-indentation t)
   (setq org-deadline-warning-days 0)
-  (setq org-tags-column -60)
+  (setq org-tags-column -55)
+  (setq org-agenda-tags-column -90)
   (setq org-log-done 'time)
   (setq org-log-into-drawer t)
   (setq org-clock-persist 'history)
@@ -858,7 +894,7 @@ Rest of the config.
   (setq org-confirm-babel-evaluate nil)
   (setq org-export-babel-evaluate nil)
   (setq org-babel-default-header-args:sage '((:session . t)
-                                             (:results . "output")))
+					     (:results . "output")))
   (setq sage-shell:check-ipython-version-on-startup nil)
   (setq sage-shell:set-ipython-version-on-startup nil)
 
@@ -967,7 +1003,7 @@ Base
   (setq org-capture-templates my-oc-templates)
 
 #+end_src
-** Babel
+** Auto-tangle
 Taken from System Crafters "Emacs from Scratch #7." It automatically tangles ~init.org~ whenever it is saved.
 #+begin_src emacs-lisp
 
@@ -982,6 +1018,17 @@ Taken from System Crafters "Emacs from Scratch #7." It automatically tangles ~in
   (add-hook 'org-mode-hook (lambda () (add-hook 'after-save-hook #'efs/org-babel-tangle-config)))
 
 #+end_src
+
+** Babel
+#+begin_src emacs-lisp
+
+    (org-babel-do-load-languages
+       'org-babel-load-languages
+       '((java . t)
+	 (emacs-lisp . t)))
+
+#+end_src
+
 ** Roam
 Roam itself.
 #+begin_src emacs-lisp
@@ -1141,6 +1188,7 @@ UI
 #+end_src
 ** Evil Easymotion
 evil-easymotion is not on ELPA or MELPA.
+
 * Ivy and Counsel
 #+begin_src emacs-lisp
 
@@ -1283,7 +1331,7 @@ This package creates margins on the left and right sides of a window. A hook tur
 
   (use-package visual-fill-column
     :custom
-    (fill-column 80)
+    (fill-column 100)
     :config
     (setq-default visual-fill-column-center-text t)
     :hook (text-mode . (lambda () (visual-fill-column-mode 1))))
@@ -1313,3 +1361,10 @@ An LSP client which easily brings over modern IDE capabilities to Emacs. Like ot
 
 #+end_src
 
+
+** Table
+#+begin_src emacs-lisp
+
+  (require 'table "/home/james/.emacs.d/third-party/table.el")
+
+#+end_src
