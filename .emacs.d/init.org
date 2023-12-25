@@ -38,6 +38,10 @@ Most of my Emacs config is generated using this file. I use literate programming
  + pasting from register in minibuffer (what is a register? How does copying and pasting work?).
  + Alignment in org tables with chinese characters.
  + Increase visibility of display time in mode line by changing the face and figure out the meaning of the additional numbers after the time.
+ + Add a confirmation message when unzipping an archive if it is going to overwrite any files.
+ + Add functionality to copy a template/copy of a useful file to a specific file location (using dired?)
+ + Figure out how to filter todos and see their scheduled/deadlines.
+ + Quick commands for executing grep.
 
 * Requirements
 Additional software is required for this configuration to work.
@@ -146,6 +150,7 @@ Displays a visual indicator at a specific column. This is primarily used for pro
   (setq debug-on-error t)
   (setq use-dialog-box nil)
   (setq vc-follow-symlinks t)
+  (setq inhibit-file-name-handlers 'tramp-autoload-file-name-handler)
 
 #+end_src
 
@@ -282,6 +287,7 @@ Functions
 
   (defun add-list-to-var (dest-var some-list)
     (mapcar '(lambda (x) (add-to-list dest-var x)) some-list))
+
 #+end_src
 
 Custom commands.
@@ -327,6 +333,19 @@ Custom commands.
     (backward-char 3)
     (evil-insert 1))
 
+
+  (defun load-latex-fragments ()
+    (interactive)
+    (let ((current-prefix-arg '(16)))
+      (call-interactively 'org-latex-preview)))
+
+
+  (defun unload-latex-fragments ()
+    (interactive)
+    (let ((current-prefix-arg '(4)))
+      (call-interactively 'org-latex-preview)))
+
+
   (defun my-org-agenda ()
     ;; adapted from https://emacs.stackexchange.com/questions/26655/org-mode-agenda-open-in-left-window-by-default
     (interactive)
@@ -341,35 +360,37 @@ Custom commands.
 
 Moving screenshots.
 #+begin_src emacs-lisp
+
   (defun screenshot-p (file)
-    (when (and (>= (length file) 16) (string= "Screenshot from " (substring file 0 16)))
-      (progn file)))
+      (when (and (>= (length file) 16) (string= "Screenshot from " (substring file 0 16)))
+	(progn file)))
 
 
-  (defun get-screenshot-files ()
-    (let ((screenshot-files '()))
-      (progn
-	(dolist (file (directory-files "~/Pictures"))
-	  (when (screenshot-p file)
-	    (setq screenshot-files (cons file screenshot-files))))
-	screenshot-files)))
+    (defun get-screenshot-files ()
+      (let ((screenshot-files '()))
+	(progn
+	  (dolist (file (directory-files "~/Pictures"))
+	    (when (screenshot-p file)
+	      (setq screenshot-files (cons file screenshot-files))))
+	  screenshot-files)))
 
 
-  (defun insert-screenshot (filename)
-    (progn 
-      (org-insert-link nil filename "")
-      (org-redisplay-inline-images)))
+    (defun insert-screenshot (filename)
+      (progn 
+	(org-insert-link nil filename "")
+	(org-redisplay-inline-images)))
 
 
-  (defun move-and-insert-screenshot ()
-    (interactive)
-    (ivy-read "Copy Image to ~/.emacs.d/org/images/" (get-screenshot-files)
-	      :action (lambda (selection)
-			(let ((new-file-name (concat "~/.emacs.d/org/images/" (read-string "New Image Name: ") ".png"))
-			      (file-to-copy (concat "~/Pictures/" selection)))
-			  (progn
-			    (copy-file file-to-copy new-file-name)
-			    (insert-screenshot (concat "file:" new-file-name)))))))
+    (defun move-and-insert-screenshot ()
+      (interactive)
+      (ivy-read "Copy Image to ~/.emacs.d/org/images/" (get-screenshot-files)
+		:action (lambda (selection)
+			  (let ((new-file-name (concat "~/.emacs.d/org/images/" (read-string "New Image Name: ") ".png"))
+				(file-to-copy (concat "~/Pictures/" selection)))
+			    (progn
+			      (copy-file file-to-copy new-file-name)
+			      (insert-screenshot (concat "file:" new-file-name)))))))
+
 #+end_src
 * Keybinds
 ** General, Key-Chord, Which-key, and Hydra
@@ -457,7 +478,6 @@ General Org-mode keybinds.
 
   (my-leader-def
     "o" '(:ignore t :which-key "Org-mode")
-    "o l" '(org-add-note :which-key "Logbook entry")
     "o n" '(:ignore t :which-key "Narrow")
     "o n s" '(org-narrow-to-subtree :which-key "Subtree")
     "o n w" '(widen :which-key "Widen")
@@ -465,8 +485,10 @@ General Org-mode keybinds.
     "o t" '(org-todo :which-key "Toggle Todo")
     "o s" '(org-store-link :which-key "Store Org Link")
     "o q" '(org-set-tags-command :which-key "Set Tags")
-    "o x" '(org-export-dispatch :which-key "Export"))
-  
+    "o x" '(org-export-dispatch :which-key "Export")
+    "o l l" '(load-latex-fragments :which-key "Reload Latex")
+    "o l u" '(unload-latex-fragments :which-key "Unload Latex"))
+
 #+end_src
 
 Useful Org-mode clocking commands.
@@ -572,7 +594,9 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "i c" '(ins-checkbox-item :which-key "Checkbox")
     "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link")
     "i l" '(org-insert-link :which-key "Org-link")
-    "i f" '(insert-latex-fragment :which-key "Latex Fragment"))
+    "i f" '(insert-latex-fragment :which-key "Latex Fragment")
+    "i b" '(org-add-note :which-key "Logbook entry")
+    )
 
 #+end_src
 *** Apps
@@ -822,20 +846,20 @@ These are general agenda variables I like for my custom agenda views. I do not u
 *Custom Agenda Views*
 #+begin_src emacs-lisp
 
-    (setq org-agenda-custom-commands '(("d" "Dashboard"
-					((agenda "" ((org-agenda-span 5)
-						    (org-agenda-start-with-entry-text-mode t)
-						    (org-habit-show-habits t)
-						    (org-agenda-show-inherited-tags nil)))))
-				       ("r" "Report"
-					((agenda "" ((org-agenda-start-day "-21d")
-						     (org-agenda-span 21)
-						     (org-agenda-start-with-log-mode t)
-						     (org-agenda-start-with-clockreport-mode t)
-						     (org-agenda-skip-archived-trees nil)))))
-				       ("f" "Future"
-					((agenda "" ((org-agenda-span 30)))))))
-
+  (setq org-agenda-custom-commands '(("d" "Dashboard"
+				      ((agenda "" ((org-agenda-span 5)
+						   (org-agenda-start-with-entry-text-mode t)
+						   (org-habit-show-habits t)
+						   (org-agenda-show-inherited-tags nil)))))
+				     ("r" "Report"
+				      ((agenda "" ((org-agenda-start-day "-21d")
+						   (org-agenda-span 21)
+						   (org-agenda-start-with-log-mode t)
+						   (org-agenda-start-with-clockreport-mode t)
+						   (org-agenda-skip-archived-trees nil)))))
+				     ("f" "Future"
+				      ((agenda "" ((org-agenda-span 30)))))))
+  
 #+end_src
 
 *Todo*
@@ -849,12 +873,12 @@ This sets custom TODO keywords along with their faces. I follow the regular TODO
 #+end_src
 
 *Priorities*
-TODO items can have priorities assigned to them to signify importance of the task. I prefer using a 1-5 (with 5 being the highest priority) scale instead of the default A-C scale for greater flexibility in selecting the importance of each task.
+TODO items can have priorities assigned to them to signify importance of the task. Importance of priorities must be descending (i.e. highest priority value < lowest priority value). I prefer using a 5 -> 1 scale instead of the default C -> A scale for greater flexibility in selecting the importance of each task.
 #+begin_src emacs-lisp
 
-  (setq org-priority-highest 5)
-  (setq org-priority-default 3)
-  (setq org-priority-lowest 1)
+  (setq org-priority-highest 1)
+  (setq org-priority-default 5)
+  (setq org-priority-lowest 5)
 
 #+end_src
 
@@ -896,6 +920,13 @@ Colors and background colors of text org emphasis tags are set here. All the emp
 				    ("\\paragraph{%s}" . "\\paragraph*{%s}")
 				    ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
   (setq org-latex-listings t)
+
+#+end_src
+
+*Cite*
+#+begin_src emacs-lisp
+
+  (setq org-cite-global-bibliography `(,(expand-file-name "~/.emacs.d/org/citations.bib")))
 
 #+end_src
 
@@ -1237,6 +1268,7 @@ evil-easymotion is not on ELPA or MELPA.
     (ivy-rich-mode 1))
 
 #+end_src
+
 * Extra Programming Packages
 ** Language Modes
 Sage-shell-mode
@@ -1259,6 +1291,18 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 #+begin_src emacs-lisp
 
   (use-package haskell-mode)
+
+#+end_src
+
+Typescript Interactive Development Environment (TIDE)
+#+begin_src emacs-lisp
+  
+  (use-package tide
+    :ensure t
+    :after (typescript-mode company flycheck)
+    :hook ((typescript-mode . tide-setup)
+	   (typescript-mode . tide-hl-identifier-mode)
+	   (before-save . tide-format-before-save)))
 
 #+end_src
 
@@ -1331,8 +1375,10 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 
 ** Elfeed
 #+begin_src emacs-lisp
+
   (use-package elfeed
-    :diminish)
+      :diminish)
+
 #+end_src
 
 *** Elfeed-org
@@ -1391,10 +1437,36 @@ An LSP client which easily brings over modern IDE capabilities to Emacs. Like ot
 
 #+end_src
 
-
 ** Table
 #+begin_src emacs-lisp
 
   (require 'table "/home/james/.emacs.d/third-party/table.el")
+
+#+end_src
+
+** All-the-icons-dired
+#+begin_src emacs-lisp
+
+  (use-package all-the-icons-dired
+    :demand t
+    :config (add-hook 'dired-mode-hook (lambda () (all-the-icons-dired-mode t))))
+
+#+end_src
+
+** All-the-icons
+#+begin_src emacs-lisp
+
+  (use-package all-the-icons)
+
+#+end_src
+
+** Dired
+#+begin_src emacs-lisp
+
+  (add-hook 'dired-mode-hook (lambda ()
+			       (dired-hide-details-mode t)
+			       (setq-local buffer-face-mode-face '(:height 160))
+			       (buffer-face-mode)
+			       (call-interactively 'beginning-of-buffer)))
 
 #+end_src

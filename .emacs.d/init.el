@@ -37,6 +37,7 @@
 (setq debug-on-error t)
 (setq use-dialog-box nil)
 (setq vc-follow-symlinks t)
+(setq inhibit-file-name-handlers 'tramp-autoload-file-name-handler)
 
 (add-hook 'python-mode-hook
 	  (lambda ()
@@ -151,6 +152,19 @@
   (backward-char 3)
   (evil-insert 1))
 
+
+(defun load-latex-fragments ()
+  (interactive)
+  (let ((current-prefix-arg '(16)))
+    (call-interactively 'org-latex-preview)))
+
+
+(defun unload-latex-fragments ()
+  (interactive)
+  (let ((current-prefix-arg '(4)))
+    (call-interactively 'org-latex-preview)))
+
+
 (defun my-org-agenda ()
   ;; adapted from https://emacs.stackexchange.com/questions/26655/org-mode-agenda-open-in-left-window-by-default
   (interactive)
@@ -162,34 +176,34 @@
 (message "Functions loaded in...")
 
 (defun screenshot-p (file)
-  (when (and (>= (length file) 16) (string= "Screenshot from " (substring file 0 16)))
-    (progn file)))
+    (when (and (>= (length file) 16) (string= "Screenshot from " (substring file 0 16)))
+      (progn file)))
 
 
-(defun get-screenshot-files ()
-  (let ((screenshot-files '()))
-    (progn
-      (dolist (file (directory-files "~/Pictures"))
-	(when (screenshot-p file)
-	  (setq screenshot-files (cons file screenshot-files))))
-      screenshot-files)))
+  (defun get-screenshot-files ()
+    (let ((screenshot-files '()))
+      (progn
+	(dolist (file (directory-files "~/Pictures"))
+	  (when (screenshot-p file)
+	    (setq screenshot-files (cons file screenshot-files))))
+	screenshot-files)))
 
 
-(defun insert-screenshot (filename)
-  (progn 
-    (org-insert-link nil filename "")
-    (org-redisplay-inline-images)))
+  (defun insert-screenshot (filename)
+    (progn 
+      (org-insert-link nil filename "")
+      (org-redisplay-inline-images)))
 
 
-(defun move-and-insert-screenshot ()
-  (interactive)
-  (ivy-read "Copy Image to ~/.emacs.d/org/images/" (get-screenshot-files)
-	    :action (lambda (selection)
-		      (let ((new-file-name (concat "~/.emacs.d/org/images/" (read-string "New Image Name: ") ".png"))
-			    (file-to-copy (concat "~/Pictures/" selection)))
-			(progn
-			  (copy-file file-to-copy new-file-name)
-			  (insert-screenshot (concat "file:" new-file-name)))))))
+  (defun move-and-insert-screenshot ()
+    (interactive)
+    (ivy-read "Copy Image to ~/.emacs.d/org/images/" (get-screenshot-files)
+	      :action (lambda (selection)
+			(let ((new-file-name (concat "~/.emacs.d/org/images/" (read-string "New Image Name: ") ".png"))
+			      (file-to-copy (concat "~/Pictures/" selection)))
+			  (progn
+			    (copy-file file-to-copy new-file-name)
+			    (insert-screenshot (concat "file:" new-file-name)))))))
 
 (use-package general)
 
@@ -238,7 +252,6 @@
 
 (my-leader-def
   "o" '(:ignore t :which-key "Org-mode")
-  "o l" '(org-add-note :which-key "Logbook entry")
   "o n" '(:ignore t :which-key "Narrow")
   "o n s" '(org-narrow-to-subtree :which-key "Subtree")
   "o n w" '(widen :which-key "Widen")
@@ -246,7 +259,9 @@
   "o t" '(org-todo :which-key "Toggle Todo")
   "o s" '(org-store-link :which-key "Store Org Link")
   "o q" '(org-set-tags-command :which-key "Set Tags")
-  "o x" '(org-export-dispatch :which-key "Export"))
+  "o x" '(org-export-dispatch :which-key "Export")
+  "o l l" '(load-latex-fragments :which-key "Reload Latex")
+  "o l u" '(unload-latex-fragments :which-key "Unload Latex"))
 
 (my-leader-def
   "o k" '(:ignore t :which-key "Clock")
@@ -319,7 +334,9 @@
   "i c" '(ins-checkbox-item :which-key "Checkbox")
   "i f" '((lambda () (interactive) (icallwp 'org-insert-link 4)) :which-key "File Link")
   "i l" '(org-insert-link :which-key "Org-link")
-  "i f" '(insert-latex-fragment :which-key "Latex Fragment"))
+  "i f" '(insert-latex-fragment :which-key "Latex Fragment")
+  "i b" '(org-add-note :which-key "Logbook entry")
+  )
 
 (general-create-definer apps-leader-def
     :keymaps '(normal visual emacs)
@@ -477,9 +494,9 @@
 
 (setq org-agenda-custom-commands '(("d" "Dashboard"
 				    ((agenda "" ((org-agenda-span 5)
-						(org-agenda-start-with-entry-text-mode t)
-						(org-habit-show-habits t)
-						(org-agenda-show-inherited-tags nil)))))
+						 (org-agenda-start-with-entry-text-mode t)
+						 (org-habit-show-habits t)
+						 (org-agenda-show-inherited-tags nil)))))
 				   ("r" "Report"
 				    ((agenda "" ((org-agenda-start-day "-21d")
 						 (org-agenda-span 21)
@@ -493,9 +510,9 @@
 (setq org-todo-keyword-faces '(("TODO" . org-todo) ("DONE" . org-done) ("FAILED" . "red") ("PARTIAL" . "yellow") ("EXCUSE" . "gray") ("WAITING" . "blue") ("NEXT" . "yellow") ("TODAY" . "purple")))
 (setq org-use-fast-todo-selection t)
 
-(setq org-priority-highest 5)
-(setq org-priority-default 3)
-(setq org-priority-lowest 1)
+(setq org-priority-highest 1)
+(setq org-priority-default 5)
+(setq org-priority-lowest 5)
 
 (require 'color)
 (set-face-attribute 'org-block nil :background
@@ -526,6 +543,8 @@
 				  ("\\paragraph{%s}" . "\\paragraph*{%s}")
 				  ("\\subparagraph{%s}" . "\\subparagraph*{%s}")))
 (setq org-latex-listings t)
+
+(setq org-cite-global-bibliography `(,(expand-file-name "~/.emacs.d/org/citations.bib")))
 
 (setq org-return-follows-link t)
 (setq org-default-notes-file (expand-file-name "~/.emacs.d/org/notes.org"))
@@ -791,6 +810,13 @@
 
 (use-package haskell-mode)
 
+(use-package tide
+  :ensure t
+  :after (typescript-mode company flycheck)
+  :hook ((typescript-mode . tide-setup)
+	 (typescript-mode . tide-hl-identifier-mode)
+	 (before-save . tide-format-before-save)))
+
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
 
@@ -822,7 +848,7 @@
 (use-package restart-emacs)
 
 (use-package elfeed
-  :diminish)
+    :diminish)
 
 (use-package elfeed-org
   :custom (rmh-elfeed-org-files (list (expand-file-name "~/.emacs.d/elfeed.org")))
@@ -850,3 +876,15 @@
 			 (setq-local ledger-complete-in-steps t))))
 
 (require 'table "/home/james/.emacs.d/third-party/table.el")
+
+(use-package all-the-icons-dired
+  :demand t
+  :config (add-hook 'dired-mode-hook (lambda () (all-the-icons-dired-mode t))))
+
+(use-package all-the-icons)
+
+(add-hook 'dired-mode-hook (lambda ()
+			     (dired-hide-details-mode t)
+			     (setq-local buffer-face-mode-face '(:height 160))
+			     (buffer-face-mode)
+			     (call-interactively 'beginning-of-buffer)))
