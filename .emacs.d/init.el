@@ -90,6 +90,8 @@
 
 (straight-use-package 'diminish)
 
+(setq use-package-compute-statistics t)
+
 (defun restart-emacs-debug-mode ()
   (interactive)
   (restart-emacs '("--debug-init")))
@@ -756,9 +758,6 @@
   (org-drill-adjust-intervals-for-early-and-late-repetitions-p t)
   (org-drill-save-buffers-after-drill-sessions-p nil))
 
-(use-package ox-hugo
-    :requires (ox))
-
 (setq evil-want-integration t)
 (setq evil-want-keybinding nil)
 
@@ -805,17 +804,7 @@
 (use-package sage-shell-mode
   :diminish t)
 
-(use-package ob-sagemath
-  :requires (sage-shell-mode))
-
 (use-package haskell-mode)
-
-(use-package tide
-  :ensure t
-  :after (typescript-mode company flycheck)
-  :hook ((typescript-mode . tide-setup)
-	 (typescript-mode . tide-hl-identifier-mode)
-	 (before-save . tide-format-before-save)))
 
 (use-package rainbow-delimiters
   :hook (prog-mode . rainbow-delimiters-mode))
@@ -847,14 +836,6 @@
 
 (use-package restart-emacs)
 
-(use-package elfeed
-    :diminish)
-
-(use-package elfeed-org
-  :custom (rmh-elfeed-org-files (list (expand-file-name "~/.emacs.d/elfeed.org")))
-  :config
-  (elfeed-org))
-
 (use-package deft
   :custom
   (deft-directory (expand-file-name "~/.emacs.d/org/"))
@@ -866,6 +847,16 @@
   :config
   (setq-default visual-fill-column-center-text t)
   :hook (text-mode . (lambda () (visual-fill-column-mode 1))))
+
+(use-package eglot
+  :custom
+  (eglot-autoshutdown t)
+  :config
+  (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd"))
+  (add-to-list 'eglot-server-programs '(javascript-mode "typescript-language-server --stdio"))
+  (add-hook 'c-mode-hook 'eglot-ensure)
+  (add-hook 'c++-mode-hook 'eglot-ensure)
+  (add-hook 'js-mode-hook 'eglot-ensure))
 
 (use-package ledger-mode
   :custom (ledger-binary-path

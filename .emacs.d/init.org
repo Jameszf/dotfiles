@@ -257,6 +257,12 @@ A MELPA package that hides enabled minor modes in the mode line. This is to keep
 
 #+end_src
 
+#+begin_src emacs-lisp
+
+  (setq use-package-compute-statistics t)
+
+#+end_src
+
 * Personal Code
 Restart emacs commands.
 #+begin_src emacs-lisp
@@ -1155,8 +1161,10 @@ UI
     (org-mode . my-org-appear-trigger-function))
 
 #+end_src
+
 ** Superstar
 #+begin_src emacs-lisp
+
   (use-package org-superstar
     :custom
     (org-hide-leading-stars nil)
@@ -1181,10 +1189,13 @@ UI
 			:foreground 'unspecified
 			:inherit 'org-level-8)
     :hook (org-mode . (lambda () (interactive)(org-superstar-mode 1))))
+
 #+end_src
 
 #+begin_src emacs-lisp
+
   (message "Org loaded in...")
+
 #+end_src
 ** Drill
 #+begin_src emacs-lisp
@@ -1202,7 +1213,7 @@ UI
 #+end_src
 
 ** Ox-hugo
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
   (use-package ox-hugo
       :requires (ox))
@@ -1280,7 +1291,7 @@ Sage-shell-mode
 #+end_src
 
 Ob-sagemath. For compatiability with Org-babel code blocks.
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
   (use-package ob-sagemath
     :requires (sage-shell-mode))
@@ -1291,18 +1302,6 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 #+begin_src emacs-lisp
 
   (use-package haskell-mode)
-
-#+end_src
-
-Typescript Interactive Development Environment (TIDE)
-#+begin_src emacs-lisp
-  
-  (use-package tide
-    :ensure t
-    :after (typescript-mode company flycheck)
-    :hook ((typescript-mode . tide-setup)
-	   (typescript-mode . tide-hl-identifier-mode)
-	   (before-save . tide-format-before-save)))
 
 #+end_src
 
@@ -1374,7 +1373,7 @@ Typescript Interactive Development Environment (TIDE)
 #+end_src
 
 ** Elfeed
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
   (use-package elfeed
       :diminish)
@@ -1382,7 +1381,7 @@ Typescript Interactive Development Environment (TIDE)
 #+end_src
 
 *** Elfeed-org
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
   (use-package elfeed-org
     :custom (rmh-elfeed-org-files (list (expand-file-name "~/.emacs.d/elfeed.org")))
@@ -1416,11 +1415,17 @@ This package creates margins on the left and right sides of a window. A hook tur
 
 ** Eglot
 An LSP client which easily brings over modern IDE capabilities to Emacs. Like other LSP clients, Eglot can be integrated with packages like company for additional functionality. The below code starts Eglot (along with the language server) for different major modes.
-#+begin_src emacs-lisp :tangle no
+#+begin_src emacs-lisp
 
-  (require eglot)
-  (add-hook 'c++-mode-hook eglot-ensure)
-  (add-hook 'c-mode-hook eglot-ensure)
+  (use-package eglot
+    :custom
+    (eglot-autoshutdown t)
+    :config
+    (add-to-list 'eglot-server-programs '((c++-mode c-mode) "clangd"))
+    (add-to-list 'eglot-server-programs '(javascript-mode "typescript-language-server --stdio"))
+    (add-hook 'c-mode-hook 'eglot-ensure)
+    (add-hook 'c++-mode-hook 'eglot-ensure)
+    (add-hook 'js-mode-hook 'eglot-ensure))
 
 #+end_src
 
