@@ -738,6 +738,17 @@ Helpful commands as well as find-library that I use for understanding packages/c
     "y f" '(yas-visit-snippet-file :which-key "Visit Snippet File"))
 
 #+end_src
+
+*** Devdocs
+#+begin_src emacs-lisp
+
+  (my-leader-def
+    "d" '(:ignore t :which-key "DevDocs")
+    "d i" '(devdocs-install :which-key "Install")
+    "d l" '(devdocs-lookup :which-key "Lookup"))
+
+#+end_src
+
 ** Modes
 *** Org-Agenda
 #+begin_src emacs-lisp
@@ -1355,6 +1366,17 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
     (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
     (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
   
+#+end_src
+
+** Devdocs
+A package for viewing documentation in an Emacs buffer. It supports over 100+ technologies. Documentation must be installed first using =devdocs-install= before viewable with =devdocs-lookup=. 
+#+begin_src emacs-lisp
+
+  (use-package devdocs
+    :hook ((python-mode . (lambda () (setq-local devdocs-current-docs '("python~3.10"))))
+	   (c-mode . (lambda () (setq-local devdocs-current-docs '("c" "cpp"))))
+	   (c++-mode . (lambda () (setq-local devdocs-current-docs '("c" "cpp"))))))
+
 #+end_src
 
 * Misc

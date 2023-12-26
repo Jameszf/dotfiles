@@ -421,6 +421,11 @@
   "y r" '(yas-reload-all :which-key "Reload all")
   "y f" '(yas-visit-snippet-file :which-key "Visit Snippet File"))
 
+(my-leader-def
+  "d" '(:ignore t :which-key "DevDocs")
+  "d i" '(devdocs-install :which-key "Install")
+  "d l" '(devdocs-lookup :which-key "Lookup"))
+
 (general-define-key
  :keymaps 'org-agenda-mode-map
  "j" 'org-agenda-next-line
@@ -831,6 +836,11 @@
   (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
   (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
   (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
+
+(use-package devdocs
+  :hook ((python-mode . (lambda () (setq-local devdocs-current-docs '("python~3.10"))))
+	 (c-mode . (lambda () (setq-local devdocs-current-docs '("c" "cpp"))))
+	 (c++-mode . (lambda () (setq-local devdocs-current-docs '("c" "cpp"))))))
 
 (use-package helpful)
 
