@@ -558,21 +558,25 @@ Generic commands for manipulating the Emacs editor system.
 
 *** Ivy and Counsel
 #+begin_src emacs-lisp
+
   (my-leader-def
-  "TAB" '(ivy-switch-buffer :which-key "Switch buffer")
+  "TAB" '(counsel-switch-buffer :which-key "Switch buffer")
   "SPC" '(counsel-M-x :which-key "M-x"))
+
 #+end_src
+
 *** Files
 #+begin_src emacs-lisp
 
   (my-leader-def
   "f" '(:ignore t :which-key "Files")
-  "f f" '(find-file :which-key "Find File")
-  "f d" '(dired :which-key "Dired")
+  "f f" '(counsel-find-file :which-key "Find File")
+  "f d" '(counsel-dired :which-key "Dired")
   "f r" '(recentf-open-files :which-key "Recent")
   "f s" '(save-buffer :which-key "Save Buffer"))
 
 #+end_src
+
 *** Help
 Helpful commands as well as find-library that I use for understanding packages/commands.
 #+begin_src emacs-lisp
@@ -645,8 +649,10 @@ Helpful commands as well as find-library that I use for understanding packages/c
 #+end_src
 **** Bookmarks
 #+begin_src emacs-lisp
+
   (apps-leader-def
     "b" '(counsel-bookmark :which-key "Bookmarks"))
+
 #+end_src
 **** Elfeed
 #+begin_src emacs-lisp
@@ -1279,13 +1285,13 @@ evil-easymotion is not on ELPA or MELPA.
     :diminish
     :custom
     (ivy-use-selectable-prompt t)
+    (ivy-height 15)
     :config
     (ivy-mode 1))
 
   (use-package counsel)
 
   (use-package ivy-rich
-    :requires (counsel)
     :init
     (ivy-rich-mode 1))
 
@@ -1471,6 +1477,13 @@ An LSP client which easily brings over modern IDE capabilities to Emacs. Like ot
 
 #+end_src
 
+** All-the-icons
+#+begin_src emacs-lisp
+
+  (use-package all-the-icons)
+
+#+end_src
+
 ** All-the-icons-dired
 #+begin_src emacs-lisp
 
@@ -1480,10 +1493,11 @@ An LSP client which easily brings over modern IDE capabilities to Emacs. Like ot
 
 #+end_src
 
-** All-the-icons
+** All-the-icons-ivy-rich
 #+begin_src emacs-lisp
 
-  (use-package all-the-icons)
+  (use-package all-the-icons-ivy-rich
+    :init (all-the-icons-ivy-rich-mode 1))
 
 #+end_src
 

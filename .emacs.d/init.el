@@ -307,13 +307,13 @@
   "e e" '(eval-buffer :which-key "Eval Buffer"))
 
 (my-leader-def
-"TAB" '(ivy-switch-buffer :which-key "Switch buffer")
+"TAB" '(counsel-switch-buffer :which-key "Switch buffer")
 "SPC" '(counsel-M-x :which-key "M-x"))
 
 (my-leader-def
 "f" '(:ignore t :which-key "Files")
-"f f" '(find-file :which-key "Find File")
-"f d" '(dired :which-key "Dired")
+"f f" '(counsel-find-file :which-key "Find File")
+"f d" '(counsel-dired :which-key "Dired")
 "f r" '(recentf-open-files :which-key "Recent")
 "f s" '(save-buffer :which-key "Save Buffer"))
 
@@ -796,13 +796,13 @@
   :diminish
   :custom
   (ivy-use-selectable-prompt t)
+  (ivy-height 15)
   :config
   (ivy-mode 1))
 
 (use-package counsel)
 
 (use-package ivy-rich
-  :requires (counsel)
   :init
   (ivy-rich-mode 1))
 
@@ -878,11 +878,14 @@
 
 (require 'table "/home/james/.emacs.d/third-party/table.el")
 
+(use-package all-the-icons)
+
 (use-package all-the-icons-dired
   :demand t
   :config (add-hook 'dired-mode-hook (lambda () (all-the-icons-dired-mode t))))
 
-(use-package all-the-icons)
+(use-package all-the-icons-ivy-rich
+  :init (all-the-icons-ivy-rich-mode 1))
 
 (add-hook 'dired-mode-hook (lambda ()
 			     (dired-hide-details-mode t)
