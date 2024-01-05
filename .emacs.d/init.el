@@ -401,12 +401,19 @@
   "w o" '(other-window :which-key "Other Window")
   "w z" '(nil :which-key "Zoom"))
 
+(defun copy-buffer-file-to-windows-downloads ()
+  (interactive)
+  (if (buffer-file-name)
+      (copy-file buffer-file-name "/mnt/c/Users/david/Downloads/")
+    (message "The current buffer is not editing a file.")))
+
 (my-leader-def
   "c" '(:ignore t :which-key "Commands")
   "c r" '(replace-regexp :which-key "Replace")
   "c e" '(eshell :which-key "Eshell")
   "c t" '(term :which-key "Term")
-  "c c" '(compile :which-key "Compile"))
+  "c c" '(compile :which-key "Compile")
+  "c d" '(copy-buffer-file-to-windows-downloads :which-key "Copy to Downloads"))
 
 (my-leader-def
   "s" '(:ignore t :which-key "Scripts")
@@ -425,6 +432,18 @@
   "d" '(:ignore t :which-key "DevDocs")
   "d i" '(devdocs-install :which-key "Install")
   "d l" '(devdocs-lookup :which-key "Lookup"))
+
+(defun new-cp-file ()
+  (interactive)
+  (let* ((filename (read-string "Filename: "))
+	(filepath (expand-file-name (concat "~/cp-problems/" filename ".cpp"))))
+	(copy-file (expand-file-name "~/.emacs.d/coding-boilerplate/cp-problem.cpp")
+		   filepath)
+	(find-file filepath)))
+
+(my-leader-def
+  ";" '(:ignore t :which-key "Coding")
+  "; c" '(new-cp-file :which-key "New CP File"))
 
 (general-define-key
  :keymaps 'org-agenda-mode-map
