@@ -1,0 +1,15 @@
+# -*- mode: snippet -*-
+# name: Binary Exponentiation
+# key: cp-binary-exponentiation
+# --
+
+ll binExp(ll base, ll power) {
+  ll num = 1;
+  ll curr = base;
+  while (power > 0) {
+    if (power % 2 == 0) num *= curr;
+    curr *= curr;
+    power >>= 1;
+  }
+  return num;
+}

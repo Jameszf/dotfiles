@@ -143,6 +143,13 @@ Displays a visual indicator at a specific column. This is primarily used for pro
 
 #+end_src
 
+*C-mode*
+#+begin_src emacs-lisp
+
+  (setq c-syntactic-indentation nil)
+
+#+end_src
+
 ** Misc Settings
 #+begin_src emacs-lisp
 
@@ -720,7 +727,7 @@ Helpful commands as well as find-library that I use for understanding packages/c
   (defun copy-buffer-file-to-windows-downloads ()
     (interactive)
     (if (buffer-file-name)
-	(copy-file buffer-file-name "/mnt/c/Users/david/Downloads/")
+	(copy-file buffer-file-name "/mnt/c/Users/david/Downloads/" t)
       (message "The current buffer is not editing a file.")))
   
   (my-leader-def
@@ -767,17 +774,23 @@ Helpful commands as well as find-library that I use for understanding packages/c
 *** Coding
 #+begin_src emacs-lisp
 
+  (defun get-cp-website-folders ()
+    (let ((files (directory-files "~/cp-problems/" nil)))
+      (seq-filter (lambda (x)
+		    (not (string-prefix-p "." x))) files)))
+
   (defun new-cp-file ()
     (interactive)
     (let* ((filename (read-string "Filename: "))
-	  (filepath (expand-file-name (concat "~/cp-problems/" filename ".cpp"))))
-	  (copy-file (expand-file-name "~/.emacs.d/coding-boilerplate/cp-problem.cpp")
-		     filepath)
-	  (find-file filepath)))
+	   (folder (ivy-read "Website: " (get-cp-website-folders) :preselect "codeforces"))
+	   (filepath (expand-file-name (concat "~/cp-problems/" folder "/" filename ".cpp"))))
+      (copy-file (expand-file-name "~/.emacs.d/coding-boilerplate/cp-problem.cpp")
+		 filepath)
+      (find-file filepath)))
 
   (my-leader-def
-    ";" '(:ignore t :which-key "Coding")
-    "; c" '(new-cp-file :which-key "New CP File"))
+    ";" '(:ignore t :which-key "Competitive Programming")
+    "; n" '(new-cp-file :which-key "New File"))
 
 #+end_src
 
@@ -1373,7 +1386,10 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 #+begin_src emacs-lisp
 
   (use-package yasnippet
-    :config (yas-global-mode 1))
+    :custom
+    (yas-indent-line nil)
+    :config
+    (yas-global-mode 1))
 
 #+end_src
 

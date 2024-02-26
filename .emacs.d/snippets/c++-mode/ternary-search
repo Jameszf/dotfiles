@@ -1,0 +1,16 @@
+# -*- mode: snippet -*-
+# name: Ternary Search 
+# key: t-search
+# --
+
+  ll l = 1, r = 1e9;
+  while (r - l > 2) {
+    ll m1 = l + (r - l) / 3, m2 = r - (r - l) / 3;
+    if () { // m1 > m2
+      r = m2
+    } else {
+      l = m1;
+    }
+  }
+
+  // answer = max(l, l + 1, l + 2)

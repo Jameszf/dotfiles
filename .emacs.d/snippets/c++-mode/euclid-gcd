@@ -1,0 +1,8 @@
+# -*- mode: snippet -*-
+# name: Euclid GCD
+# key: euclid-gcd
+# --
+
+ll gcd(ll a, ll b) {
+   return b ? gcd(b, a %  b) : a;
+}

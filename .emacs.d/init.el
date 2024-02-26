@@ -33,6 +33,8 @@
 (setq-default display-fill-column-indicator-column 80)
 (add-hook 'prog-mode-hook #'display-fill-column-indicator-mode)
 
+(setq c-syntactic-indentation nil)
+
 (setq user-emacs-directory (expand-file-name "~/.emacs.d"))
 (setq debug-on-error t)
 (setq use-dialog-box nil)
@@ -404,7 +406,7 @@
 (defun copy-buffer-file-to-windows-downloads ()
   (interactive)
   (if (buffer-file-name)
-      (copy-file buffer-file-name "/mnt/c/Users/david/Downloads/")
+      (copy-file buffer-file-name "/mnt/c/Users/david/Downloads/" t)
     (message "The current buffer is not editing a file.")))
 
 (my-leader-def
@@ -433,17 +435,23 @@
   "d i" '(devdocs-install :which-key "Install")
   "d l" '(devdocs-lookup :which-key "Lookup"))
 
+(defun get-cp-website-folders ()
+  (let ((files (directory-files "~/cp-problems/" nil)))
+    (seq-filter (lambda (x)
+		  (not (string-prefix-p "." x))) files)))
+
 (defun new-cp-file ()
   (interactive)
   (let* ((filename (read-string "Filename: "))
-	(filepath (expand-file-name (concat "~/cp-problems/" filename ".cpp"))))
-	(copy-file (expand-file-name "~/.emacs.d/coding-boilerplate/cp-problem.cpp")
-		   filepath)
-	(find-file filepath)))
+	 (folder (ivy-read "Website: " (get-cp-website-folders) :preselect "codeforces"))
+	 (filepath (expand-file-name (concat "~/cp-problems/" folder "/" filename ".cpp"))))
+    (copy-file (expand-file-name "~/.emacs.d/coding-boilerplate/cp-problem.cpp")
+	       filepath)
+    (find-file filepath)))
 
 (my-leader-def
-  ";" '(:ignore t :which-key "Coding")
-  "; c" '(new-cp-file :which-key "New CP File"))
+  ";" '(:ignore t :which-key "Competitive Programming")
+  "; n" '(new-cp-file :which-key "New File"))
 
 (general-define-key
  :keymaps 'org-agenda-mode-map
@@ -841,7 +849,10 @@
   :hook (prog-mode . company-mode))
 
 (use-package yasnippet
-  :config (yas-global-mode 1))
+  :custom
+  (yas-indent-line nil)
+  :config
+  (yas-global-mode 1))
 
 (use-package magit)
 
