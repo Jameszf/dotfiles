@@ -461,10 +461,16 @@
 (setq key-chord-two-keys-delay 0.2) ;; because I have slow fingers
 
 ;; Allow alternative exiting of insert/replace modes.
+
+;; (general-define-key
+;;   :states '(insert replace)
+;;   (general-chord "fd") 'evil-normal-state
+;;   (general-chord "df") 'evil-normal-state)
+
 (general-define-key
   :states '(insert replace)
-  (general-chord "fd") 'evil-normal-state
-  (general-chord "df") 'evil-normal-state)
+  (general-chord "jk") 'evil-normal-state
+  (general-chord "kj") 'evil-normal-state)
 
  (general-define-key
   :states 'normal
@@ -866,11 +872,6 @@
   (add-hook 'lisp-mode-hook             #'enable-paredit-mode)
   (add-hook 'lisp-interaction-mode-hook #'enable-paredit-mode)
   (add-hook 'scheme-mode-hook           #'enable-paredit-mode))
-
-(use-package devdocs
-  :hook ((python-mode . (lambda () (setq-local devdocs-current-docs '("python~3.10"))))
-	 (c-mode . (lambda () (setq-local devdocs-current-docs '("c" "cpp"))))
-	 (c++-mode . (lambda () (setq-local devdocs-current-docs '("c" "cpp"))))))
 
 (use-package helpful)
 

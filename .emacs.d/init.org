@@ -42,6 +42,8 @@ Most of my Emacs config is generated using this file. I use literate programming
  + Add functionality to copy a template/copy of a useful file to a specific file location (using dired?)
  + Figure out how to filter todos and see their scheduled/deadlines.
  + Quick commands for executing grep.
+ + Add extra code to make fresh starts of config easiser (e.g. making `.saves` and `org` folders if not detected in `.emacs.d`).
+ + Look into devdocs package and other not-tangled packages.
 
 * Requirements
 Additional software is required for this configuration to work.
@@ -808,10 +810,16 @@ Helpful commands as well as find-library that I use for understanding packages/c
   (setq key-chord-two-keys-delay 0.2) ;; because I have slow fingers
 
   ;; Allow alternative exiting of insert/replace modes.
+
+  ;; (general-define-key
+  ;;   :states '(insert replace)
+  ;;   (general-chord "fd") 'evil-normal-state
+  ;;   (general-chord "df") 'evil-normal-state)
+
   (general-define-key
     :states '(insert replace)
-    (general-chord "fd") 'evil-normal-state
-    (general-chord "df") 'evil-normal-state)
+    (general-chord "jk") 'evil-normal-state
+    (general-chord "kj") 'evil-normal-state)
 
    (general-define-key
     :states 'normal
@@ -1418,7 +1426,7 @@ Haskell-mode to support syntax highlighting, completion, etc. for Haskell.
 
 ** Devdocs
 A package for viewing documentation in an Emacs buffer. It supports over 100+ technologies. Documentation must be installed first using =devdocs-install= before viewable with =devdocs-lookup=. 
-#+begin_src emacs-lisp
+#+begin_src emacs-lisp :tangle no
 
   (use-package devdocs
     :hook ((python-mode . (lambda () (setq-local devdocs-current-docs '("python~3.10"))))
